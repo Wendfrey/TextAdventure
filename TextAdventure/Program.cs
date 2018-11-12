@@ -347,7 +347,7 @@ namespace TextAdventure
                     level++;
                     goNextLevel = false;
                     // hola
-                    int cRooms = (level > 10) ? 100 : 10 + 9 * level;
+                    int cRooms = 10 + 5 * level;
                     Level.StartLevel(cRooms);
                     lvlLayout = Level.actualRooms;
                     pl.currentRoom = lvlLayout[0];
