@@ -12,7 +12,7 @@ namespace TextAdventure
         string nombre;
         readonly int level;
         public Enemigo(DatoEnemigo datoEnemigo, int level)
-        {
+        {// Raul estuvo aqui
             this.level = level;
             nombre = datoEnemigo.nombre;
             hpM = (int)((datoEnemigo.hpM * level / 100 + 10));
