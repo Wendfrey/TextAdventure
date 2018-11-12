@@ -12,11 +12,12 @@ namespace TextAdventure
         protected int hp;
         protected int def;
         protected int att;
-        protected float acc;
         protected int mana;
         protected int manaM;
         protected int attMa;
         protected int speed;
+        protected float hitPerc;
+        protected float avoidPerc;
 
         public int ReceiveDamage(int att, int def)
         {
@@ -56,11 +57,6 @@ namespace TextAdventure
             return def;
         }
 
-        virtual public float GetAccuracy()
-        {
-            return acc;
-        }
-
         virtual public int GetSpeed()
         {
             return speed;
@@ -79,6 +75,16 @@ namespace TextAdventure
         virtual public void SetMana(int newMana)
         {
             mana = newMana;
+        }
+
+        virtual public float GetHitPerc()
+        {
+            return hitPerc;
+        }
+
+        virtual public float GetAvoidPerc()
+        {
+            return avoidPerc;
         }
     }
 }

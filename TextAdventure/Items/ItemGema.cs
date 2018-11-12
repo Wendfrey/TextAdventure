@@ -8,11 +8,8 @@ namespace TextAdventure
 {
     class ItemGema : ItemEquipable
     {
-        public ItemGema(string name, int hp, int att, int def) : base(name, hp, att, def, 0)
+        public ItemGema(string name, int hp, int attM, int manaM) : base(name: name, attMag: attM, mana: manaM)
         {
-            hpM = hp;
-            attM = att;
-            defM = def;
         }
     }
 }

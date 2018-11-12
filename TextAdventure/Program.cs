@@ -25,7 +25,7 @@ namespace TextAdventure
                 pl = new Player();
                 level = 1;
                 buffer.ClearBox();
-                int cRooms = (level > 10) ? 100 : 10 + 9 * level;
+                int cRooms = 10 + 5 * level;
                 Level.StartLevel(cRooms);
                 lvlLayout = Level.GetListOfRooms();
 
@@ -115,6 +115,29 @@ namespace TextAdventure
                                     throw new Exception("Sala invisible en propia localización");
                                 else
                                     buffer.Print(xx, yy, "?");
+                                if (lvlLayout[i].IsVisible() == 3)
+                                {
+                                    if (lvlLayout[i].GetNorthRoom() != null)
+                                    {
+                                        if (yy >= 3)
+                                            buffer.Print(xx, yy - 1, "|");
+                                    }
+                                    if (lvlLayout[i].GetSouthRoom() != null)
+                                    {
+                                        if (yy < height - 2)
+                                            buffer.Print(xx, yy + 1, "|");
+                                    }
+                                    if (lvlLayout[i].GetWestRoom() != null)
+                                    {
+                                        if (xx > width - 19)
+                                            buffer.Print(xx - 1, yy, "-");
+                                    }
+                                    if (lvlLayout[i].GetEastRoom() != null)
+                                    {
+                                        if (xx < width - 2)
+                                            buffer.Print(xx + 1, yy, "-");
+                                    }
+                                }
                             }
                         }
                     }
@@ -204,6 +227,30 @@ namespace TextAdventure
                                 throw new Exception("Sala invisible en propia localización");
                             else
                                 buffer.Print(xx, yy, "?");
+
+                            if(lvlLayout[i].IsVisible() == 3)
+                            {
+                                if (lvlLayout[i].GetNorthRoom() != null)
+                                {
+                                    if (yy >= 3)
+                                        buffer.Print(xx, yy - 1, "|");
+                                }
+                                if (lvlLayout[i].GetSouthRoom() != null)
+                                {
+                                    if (yy < height - 2)
+                                        buffer.Print(xx, yy + 1, "|");
+                                }
+                                if (lvlLayout[i].GetWestRoom() != null)
+                                {
+                                    if (xx > width - 19)
+                                        buffer.Print(xx - 1, yy, "-");
+                                }
+                                if (lvlLayout[i].GetEastRoom() != null)
+                                {
+                                    if (xx < width - 2)
+                                        buffer.Print(xx + 1, yy, "-");
+                                }
+                            }
                         }
                     }
                 }

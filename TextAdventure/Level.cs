@@ -52,19 +52,26 @@ namespace TextAdventure
         {
             actualRooms = new List<Room>();
             List<Vector2> actualVectors;
-            if (cantidad >= 100)
-                if (CustomMath.RandomUnit() < 1d/3d)
+            if (Program.level > 5)
+            {
+                double prob = CustomMath.RandomUnit();
+                if (prob < 95d / 300d)
                 {
                     actualVectors = GenerateLevelVersion2(cantidad);
                 }
-                else if(CustomMath.RandomUnit() < 2d/3d)
+                else if (prob < 190d / 300d)
                 {
                     actualVectors = GenerateLevel(cantidad);
                 }
-                else
+                else if (prob < 285d/300d)
                 {
                     actualVectors = GenerateLevelVersion3(cantidad);
                 }
+                else
+                {
+                    actualVectors = GenerateLevelVersion4(cantidad);
+                }
+            }
             else
             {
                 actualVectors = GenerateLevel(cantidad);
@@ -618,7 +625,7 @@ namespace TextAdventure
                         }
                     }
                 }
-                else if(vv.y%2 == 0)
+                else if (vv.y % 2 == 0)
                 {
                     up = false;
                     down = false;
@@ -641,7 +648,7 @@ namespace TextAdventure
                         }
                     }
                 }
-                else if(vv.x%2 == 0)
+                else if (vv.x % 2 == 0)
                 {
                     left = false;
                     right = false;
@@ -664,6 +671,101 @@ namespace TextAdventure
                         }
                     }
                 }
+
+                if (up)
+                {
+                    posibilidades.Add(vv2);
+                }
+                if (right)
+                {
+                    posibilidades.Add(vh2);
+                }
+                if (down)
+                {
+                    posibilidades.Add(vv1);
+                }
+                if (left)
+                {
+                    posibilidades.Add(vh1);
+                }
+            }
+
+            return actualVectors;
+        }
+
+        public static List<Vector2> GenerateLevelVersion4(int cantidad)
+        {
+            List<Vector2> actualVectors = new List<Vector2>();
+            List<Vector2> posibilidades = new List<Vector2>()
+            {
+                new Vector2(0, 0)
+            };
+
+
+            while (actualVectors.Count < cantidad)
+            {
+                //Paso 3.1
+                Vector2 vv, vv1, vv2, vh1, vh2;
+
+                //Paso 1 -- Añade sala aleatoria de lista de posibilidades
+                int index = CustomMath.RandomIntNumber(posibilidades.Count - 1);
+                actualVectors.Add(posibilidades[index]);
+
+                //paso 3.2
+                vv = posibilidades[index];
+                vv1 = new Vector2(vv.x, vv.y - 1);
+                vv2 = new Vector2(vv.x, vv.y + 1);
+                vh1 = new Vector2(vv.x - 1, vv.y);
+                vh2 = new Vector2(vv.x + 1, vv.y);
+
+                //Paso 2 -- Borra la sala añadida de la lista de posibilidades
+                posibilidades.RemoveAt(index);
+
+                //Paso 3 -- quita las no posibles de la lista
+                for(int i = 0; i<posibilidades.Count; i++)
+                {
+                    if (posibilidades[i].Equals(vv1) || posibilidades[i].Equals(vv2) || posibilidades[i].Equals(vh1) || posibilidades[i].Equals(vh2))
+                    {
+                        posibilidades.RemoveAt(i);
+                    }
+                }
+
+                bool up = true, down = true, left = true, right = true;
+                for (int i = 0; i < actualVectors.Count; i++)
+                {
+                    if (up)
+                    {
+                        if (actualVectors[i].Equals(vv2))
+                        {
+                            up = false;
+                        }
+                    }
+
+                    if (down)
+                    {
+                        if (actualVectors[i].Equals(vv1))
+                        {
+                            down = false;
+                        }
+                    }
+
+                    if (right)
+                    {
+                        if (actualVectors[i].Equals(vh2))
+                        {
+                            right = false;
+                        }
+                    }
+
+                    if (left)
+                    {
+                        if (actualVectors[i].Equals(vh1))
+                        {
+                            left = false;
+                        }
+                    }
+                }
+                
 
                 if (up)
                 {

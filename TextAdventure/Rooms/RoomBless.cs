@@ -54,15 +54,25 @@ namespace TextAdventure.Rooms
                         {
                             if (CustomMath.RandomUnit() < 0.5)
                             {
-                                item = new ItemPocion("Poción de Vida", CustomMath.RandomIntNumber(75, 50), ItemPocion.PocionType.hp);
+                                item = new ItemPocion("Gran poción de Vida", 100, ItemPocion.PocionType.hp);
                             }
                             else
                             {
-                                item = new ItemPocion("Poción de Mana", CustomMath.RandomIntNumber(75, 50), ItemPocion.PocionType.mana);
+                                item = new ItemPocion("Gran poción de Maná", 100, ItemPocion.PocionType.mana);
                             }
                         }
                         else
-                            item = new ItemScroll("Pergamino de visión", 0);
+                        {
+                            double prob = CustomMath.RandomUnit();
+                            if (prob < 0.5)
+                            {
+                                item = new ItemScroll("Pergamino de visión", 0);
+                            }
+                            else
+                            {
+                                item = new ItemScroll("Pergamino de salida", 1);
+                            }
+                        }
 
                         if (!pl.FilledBag())
                         {
@@ -80,9 +90,11 @@ namespace TextAdventure.Rooms
                     {
                         Program.buffer.InsertText("Los ojos los tienes más despiertos y eres capaz de ver en la oscuridad");
                         hasEffect = false;
-                        for(int i = 0; i<Program.lvlLayout.Count; i++)
+                        List<Room> r = Program.lvlLayout;
+                        for (int i = 0; i<r.Count; i++)
                         {
-                            Program.lvlLayout[i].SetVisible(2);
+                            if(r[i].IsVisible() == 0)
+                                r[i].SetVisible(3);
                         }
                         if (pl.GetMaldicion(4))
                         {
@@ -104,12 +116,13 @@ namespace TextAdventure.Rooms
 
                         pl.ExcesoMaldito = 0;
                         pl.RestoreHealth();
+                        pl.RestoreMana();
                         Program.buffer.InsertText("¡Tu cuerpo se siente renacido!");
                         Program.buffer.InsertText("¡Has recuperado toda la vida!");
+                        Program.buffer.InsertText("¡Has recuperado todo el maná!");
                         Program.buffer.InsertText("¡Todas las maldiciones se han desvanecido!");
                     }
                 } while (hasEffect);
-
             }
         }
     }

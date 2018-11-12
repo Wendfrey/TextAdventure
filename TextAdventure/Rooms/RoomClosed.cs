@@ -14,34 +14,34 @@ namespace TextAdventure.Rooms
             double random = CustomMath.RandomUnit();
             if (CustomMath.RandomUnit() < 1/3d)
             {
-                ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length - 1)], ((int)Math.Pow(Program.GetLevel() + 1, 1.4) < Program.pl.GetLevel()) ? Program.pl.GetLevel() : (int) Math.Pow(Program.GetLevel() + 1, 1.4));
+                ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length - 1)], ((int)Math.Pow(Program.GetLevel() + 1, 1.2) < Program.pl.GetLevel()) ? Program.pl.GetLevel() : (int) Math.Pow(Program.GetLevel() + 1, 1.4));
                 ene.SetName("Super " + ene.GetName());
                 if(random < 0.5)
                 {
-                    item[0] = new ItemWeapon("Espada legendaria", 0, CustomMath.RandomIntNumber(5, 3) + Program.level,(Program.level < 15)?CustomMath.RandomIntNumber(25 + Program.level, 25) * 0.01f : CustomMath.RandomIntNumber(40, 25) * 0.01f);
+                    item[0] = new ItemWeapon("Espada legendaria", CustomMath.RandomIntNumber(5, 3) + Program.level, 50);
                 }
                 else
                 {
-                    item[0] = new ItemWeapon("Espada de espadas", 0, CustomMath.RandomIntNumber(3, 0) + Program.level*2, CustomMath.RandomIntNumber(25, 0) * 0.01f);
+                    item[0] = new ItemWeapon("Espada de espadas", CustomMath.RandomIntNumber(3, 0) + Program.level*2, 5);
                 }
             }
             else
             {
                 if (random < 0.05)
                 {
-                    item[0] = new ItemWeapon("Espada legendaria", 0, CustomMath.RandomIntNumber(5, 3) + Program.level, (Program.level < 15) ? CustomMath.RandomIntNumber(25 + Program.level, 25) * 0.01f : CustomMath.RandomIntNumber(40, 25) * 0.01f);
+                    item[0] = new ItemWeapon("Espada legendaria", CustomMath.RandomIntNumber(5, 3) + Program.level, 50);
                 }
                 else if (random < 0.3)
                 {
-                    item[0] = new ItemWeapon("Espada buena", 0, CustomMath.RandomIntNumber(3, 0) + Program.level, CustomMath.RandomIntNumber(25, 0) * 0.01f);
+                    item[0] = new ItemWeapon("Espada buena", CustomMath.RandomIntNumber(3, 0) + Program.level, 20);
                 }
                 else if (random < 0.95)
                 {
-                    item[0] = new ItemWeapon("Espada normal", 0, (CustomMath.RandomIntNumber(3, 0) + Program.level) / 2, CustomMath.RandomIntNumber(25, 0) * 0.01f);
+                    item[0] = new ItemWeapon("Espada normal", (CustomMath.RandomIntNumber(3, 0) + Program.level) / 2, 10);
                 }
                 else
                 {
-                    item[0] = new ItemWeapon("Espada podrida", 0, 1, CustomMath.RandomIntNumber(0, -45) * 0.01f);
+                    item[0] = new ItemWeapon("Espada podrida", 1, 0);
                 }
             }
         }

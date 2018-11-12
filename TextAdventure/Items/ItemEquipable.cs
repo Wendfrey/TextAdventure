@@ -11,14 +11,18 @@ namespace TextAdventure
         protected int hpM;
         protected int attM;
         protected int defM;
-        protected float accM;
+        protected int attMM;
+        protected int manaM;
+        protected int speedM;
 
-        public ItemEquipable(string name, int hp, int att, int def, float acc) : base(name)
+        public ItemEquipable(string name, int hp = 0, int att = 0, int def = 0, int attMag = 0, int mana = 0, int speed = 0) : base(name)
         {
-            this.hpM = hp;
+            hpM = hp;
             attM = att;
             defM = def;
-            accM = acc;
+            attMM = attMag;
+            manaM = mana;
+            speedM = speed;
         }
 
         public int ModifierHp()
@@ -34,11 +38,6 @@ namespace TextAdventure
         public int ModifierDef()
         {
             return defM;
-        }
-
-        public float ModifierAcc()
-        {
-            return accM;
         }
     }
 }

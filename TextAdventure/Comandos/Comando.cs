@@ -277,7 +277,6 @@ namespace TextAdventure.Comandos
             int modh = 0;
             int moda = 0;
             int modd = 0;
-            float modac = 0;
 
             for (int i = 0; i < bagitem.Length; i++)
             {
@@ -287,16 +286,21 @@ namespace TextAdventure.Comandos
                     modh += gema.ModifierHp();
                     moda += gema.ModifierAtt();
                     modd += gema.ModifierDef();
-                    modac += gema.ModifierAcc();
                 }
             }
             ItemWeapon weapon = Program.pl.GetWeapon();
-            if(weapon != null)
+            if (weapon != null)
             {
                 modh += weapon.ModifierHp();
                 moda += weapon.ModifierAtt();
                 modd += weapon.ModifierDef();
-                modac += weapon.ModifierAcc();
+            }
+            ItemArmor armor = Program.pl.GetArmor();
+            if (armor != null)
+            {
+                modh += armor.ModifierHp();
+                moda += armor.ModifierAtt();
+                modd += armor.ModifierDef();
             }
             Program.buffer.Print(1, 0, "STATS");
 
@@ -317,15 +321,11 @@ namespace TextAdventure.Comandos
             else
                 Program.buffer.Print(2, 9, "DEFENSA (Def)-> " + Program.pl.GetFlatDef() + "+(" + modd + ") --> Daño que reduces");
 
-            if(modac == 0)
-                Program.buffer.Print(2, 11, "PRECISIÓN (Acc) -> " + Program.pl.GetFlatAccuracy() + " --> Probabilidad de dar");
-            else
-                Program.buffer.Print(2, 11, "PRECISIÓN (Acc) -> " + Program.pl.GetFlatAccuracy() + "+(" + modac + ") --> Probabilidad de dar");
-
             Program.buffer.Print(2, 13, "MANA (mana) -> " + Program.pl.GetMana() + "/" + Program.pl.GetManaM());
 
             Program.buffer.Print(2, 15, "Velocidad (Vel.) -> " + Program.pl.GetSpeed());
 
+            Program.SmallMap();
             Program.buffer.PrintScreen();
             Console.ReadKey();
             return true;
@@ -378,10 +378,6 @@ namespace TextAdventure.Comandos
                         else
                             texto += "DEF(+" + equipo.ModifierDef() + ") ";
 
-                        if (equipo.ModifierAcc() < 0)
-                            texto += "ACC(" + equipo.ModifierAcc() + ") ";
-                        else
-                            texto += "ACC(+" + equipo.ModifierAcc() + ") ";
                         Program.buffer.Print(5 + 50 * x, 3 + ii * 3, texto);
                     }
                     else if(bag[i].GetType() == typeof(ItemPocion))
@@ -524,8 +520,7 @@ namespace TextAdventure.Comandos
             bool obj = int.TryParse(Console.ReadLine(), out num);
             if (obj && num >= 0 && num < bag.Length && bag[num] != null)
             {
-                Program.pl.ConsumeItem(num);
-                return true;
+                return Program.pl.ConsumeItem(num);
             }
             else if (!obj)
             {
@@ -550,7 +545,21 @@ namespace TextAdventure.Comandos
                 Program.buffer.Print(7, 6, "HP-> " + weapon.ModifierHp());
                 Program.buffer.Print(7, 7, "ATT-> " + weapon.ModifierAtt());
                 Program.buffer.Print(7, 8, "DEF-> " + weapon.ModifierDef());
-                Program.buffer.Print(7, 9, "ACC-> " + weapon.ModifierAcc());
+            }
+            else
+            {
+                Program.buffer.Print(7, 5, "Ninguna");
+            }
+
+
+            Program.buffer.Print(1, 12, "ARMADURA");
+            ItemArmor armor = Program.pl.GetArmor();
+            if (armor != null)
+            {
+                Program.buffer.Print(7, 13, armor.GetName());
+                Program.buffer.Print(7, 14, "HP-> " + armor.ModifierHp());
+                Program.buffer.Print(7, 15, "ATT-> " + armor.ModifierAtt());
+                Program.buffer.Print(7, 16, "DEF-> " + armor.ModifierDef());
             }
             else
             {
@@ -560,7 +569,6 @@ namespace TextAdventure.Comandos
             Program.buffer.Print(101, 3, "Hp  -> " + Program.pl.GetHealth() + "/" + Program.pl.GetMHealth());
             Program.buffer.Print(101, 5, "Att -> " + Program.pl.GetAtt());
             Program.buffer.Print(101, 7, "Def -> " + Program.pl.GetDef());
-            Program.buffer.Print(101, 9, "Acc -> " + Program.pl.GetAccuracy());
             Program.buffer.Print(101, 11, "Mana -> " + Program.pl.GetMana() + "/" + Program.pl.GetManaM());
             Program.buffer.Print(101, 13, "Vel. -> " + Program.pl.GetSpeed());
 
@@ -580,7 +588,6 @@ namespace TextAdventure.Comandos
                         Program.buffer.Print(57, 7 + i * 7, "HP-> " + gemas[i].ModifierHp());
                         Program.buffer.Print(57, 8 + i * 7, "ATT-> " + gemas[i].ModifierAtt());
                         Program.buffer.Print(57, 9 + i * 7, "DEF-> " + gemas[i].ModifierDef());
-                        Program.buffer.Print(57, 10 + i * 7, "ACC-> " + gemas[i].ModifierAcc());
                     }
                     else
                     {
@@ -589,7 +596,6 @@ namespace TextAdventure.Comandos
                         Program.buffer.Print(80, 7, "HP-> " + gemas[i].ModifierHp());
                         Program.buffer.Print(80, 8, "ATT-> " + gemas[i].ModifierAtt());
                         Program.buffer.Print(80, 9, "DEF-> " + gemas[i].ModifierDef());
-                        Program.buffer.Print(80, 10, "ACC-> " + gemas[i].ModifierAcc());
                     }
                 }
             }
@@ -644,10 +650,11 @@ namespace TextAdventure.Comandos
             else
             {
                 Program.buffer.InsertText("¿Que quieres desequiparte?");
-                Program.buffer.InsertText("    >ARMA    >GEMA");
+                Program.buffer.InsertText("    >ARMA    >GEMA    >ARMADURA");
                 Program.buffer.Print(1,Program.buffer.height-2,">");
                 Program.buffer.PrintBackground();
                 Program.buffer.PrintText(Program.buffer.height - 3);
+                Program.SmallMap();
                 Program.buffer.PrintScreen();
                 Console.SetCursorPosition(2, Program.buffer.height - 2);
                 string tipo = Console.ReadLine().ToLower();
@@ -713,6 +720,28 @@ namespace TextAdventure.Comandos
                         {
                             Program.buffer.InsertText("El número no es válido");
                         }
+                        return false;
+                    }
+                }
+                else if (tipo.Equals("armadura"))
+                {
+                    if (Program.pl.GetArmor() != null)
+                    {
+                        for (int i = 0; i < Program.pl.GetBag().Length; i++)
+                        {
+                            if (Program.pl.GetBag()[i] == null)
+                            {
+                                Item rr = Program.pl.DropArmor();
+                                Program.buffer.InsertText("Te has desequipado " + rr.GetName());
+                                Program.pl.GetBag()[i] = rr;
+                                i = Program.pl.GetBag().Length;
+                            }
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        Program.buffer.InsertText("No tienes armadura equipada");
                         return false;
                     }
                 }

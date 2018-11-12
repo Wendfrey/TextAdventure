@@ -16,6 +16,7 @@ namespace TextAdventure
         Item[] bag = new Item[10];
         ItemGema[] gemas = { null, null, null };
         ItemWeapon arma = null;
+        ItemArmor armadura = null;
         Maldicion[] mal = { null, null, null };
         public bool levelUp = false;
         int level;
@@ -45,14 +46,14 @@ namespace TextAdventure
             set
             {
                 exp = value;
-                while (CustomMath.ExpNeeded(level+1) <= exp)
+                while (CustomMath.ExpNeeded(level + 1) <= exp)
                 {
                     level++;
                     levelUp = true;
-                    
+
                     int temp = hpM;
-                    hpM = ((400 * level / 100 + 20)*(10-excesoMaldito))/10;
-                    hp+= hpM - temp;
+                    hpM = ((400 * level / 100 + 20) * (10 - excesoMaldito)) / 10;
+                    hp += hpM - temp;
                     att = 200 * level / 100 + 5;
                     def = 200 * level / 100 + 5;
                     speed = 200 * level / 100 + 5;
@@ -63,23 +64,27 @@ namespace TextAdventure
         {
             level = 1;
             Experiencia = 0;
-            for(int i = 0; i<5; i++)
+            for (int i = 0; i < 5; i++)
                 bag[i] = new ItemPocion("Poción de vida", 50, ItemPocion.PocionType.hp);
+
+            armadura = new ItemArmor("Armadura Simple", 45);
+
             hpM = ((400 * level / 100 + 20) * (10 - excesoMaldito)) / 10;
             hp = hpM;
             att = 200 * level / 100 + 5;
             def = 200 * level / 100 + 5;
             speed = 200 * level / 100 + 5;
-            acc = 0.5f;
             mana = 10;
             manaM = 10;
+            hitPerc = 0.1f;
+            avoidPerc = armadura.GetAvoidPercFloat();
         }
 
         public void SetCurrentRoom(Room room)
         {
             currentRoom = room;
         }
-        
+
         /*_______________Arma______________*/
         public ItemWeapon GetWeapon()
         {
@@ -90,6 +95,19 @@ namespace TextAdventure
         {
             ItemWeapon temp = arma;
             arma = null;
+            return temp;
+        }
+
+        /*_____________Armadura___________*/
+        public ItemArmor GetArmor()
+        {
+            return armadura;
+        }
+
+        public ItemArmor DropArmor()
+        {
+            ItemArmor temp = armadura;
+            armadura = null;
             return temp;
         }
 
@@ -105,7 +123,7 @@ namespace TextAdventure
                 }
             }
         }
-        
+
         public void ListOfItems()
         {
             string text = "    ";
@@ -114,16 +132,17 @@ namespace TextAdventure
             {
                 if (bag[j] != null)
                 {
-                    text += "["+ j +"]->" + bag[j].GetName() + "  ";
-                    if (acc%5 == 4)
+                    string temp = "[" + j + "]->" + bag[j].GetName();
+                    if (text.Length + temp.Length > 100)
                     {
                         Program.buffer.InsertText(text);
                         text = "    ";
                     }
+                    text += temp + "  ";
                     acc++;
                 }
             }
-            if(!text.Equals("    "))
+            if (!text.Equals("    "))
             {
                 Program.buffer.InsertText(text);
             }
@@ -131,14 +150,10 @@ namespace TextAdventure
 
         public void PickItem(int num)
         {
-            if (FilledBag() && FilledGemas() && arma != null)
+            Item item = currentRoom.GetRoomItems()[num];
+            if (item.GetType().BaseType == typeof(ItemEquipable))
             {
-                Program.buffer.InsertText("Tienes la mochila llena");
-            }
-            else
-            {
-                Item item = currentRoom.GetRoomItems()[num];
-                if (item.GetType() == typeof(ItemGema) && !FilledGemas())
+                if (!FilledGemas() && item.GetType() == typeof(ItemGema))
                 {
                     for (int i = 0; i < gemas.Length; i++)
                     {
@@ -150,12 +165,36 @@ namespace TextAdventure
                         }
                     }
                 }
-                else if(item.GetType() == typeof(ItemWeapon) && arma == null)
+                else if (GetWeapon() == null && item.GetType() == typeof(ItemWeapon))
                 {
-                    arma =(ItemWeapon) currentRoom.DropItem(num);
+                    arma = (ItemWeapon)currentRoom.DropItem(num);
                     Program.buffer.InsertText("Te has equipado " + item.GetName());
                 }
-                else if(!FilledBag())
+                else if (GetArmor() == null && item.GetType() == typeof(ItemArmor))
+                {
+                    armadura = (ItemArmor)currentRoom.DropItem(num);
+                    Program.buffer.InsertText("Te has equipado " + item.GetName());
+                }
+                else if (!FilledBag())
+                {
+                    for (int i = 0; i < bag.Length; i++)
+                    {
+                        if (bag[i] == null)
+                        {
+                            bag[i] = currentRoom.DropItem(num);
+                            Program.buffer.InsertText("Has guardado en la mochila " + item.GetName());
+                            i = bag.Length;
+                        }
+                    }
+                }
+                else
+                {
+                    Program.buffer.InsertText("Tienes la mochila llena");
+                }
+            }
+            else
+            {
+                if (!FilledBag())
                 {
                     for (int i = 0; i < bag.Length; i++)
                     {
@@ -177,9 +216,9 @@ namespace TextAdventure
         public bool FilledBag()
         {
             bool check = true;
-            for(int i = 0; i< bag.Length; i++)
+            for (int i = 0; i < bag.Length; i++)
             {
-                if(bag[i] == null)
+                if (bag[i] == null)
                 {
                     check = false;
                     i = bag.Length;
@@ -195,66 +234,88 @@ namespace TextAdventure
 
         public void EquipItem(int num)
         {
-            if (bag[num].GetType() == typeof(ItemWeapon))
+            Item item = bag[num];
+            if (item.GetType().BaseType == typeof(ItemEquipable))
             {
-                if (arma == null)
+                if (item.GetType() == typeof(ItemWeapon))
                 {
-                    Program.buffer.InsertText("Te has equipado " + bag[num].GetName());
-                    arma = (ItemWeapon)bag[num];
-                    bag[num] = null;
-                }
-                else
-                {
-                    Program.buffer.InsertText("Te has equipado " + bag[num].GetName());
-                    Program.buffer.InsertText("Te has desequipado " + arma.GetName());
-                    ItemWeapon temp = arma;
-                    arma = (ItemWeapon)bag[num];
-                    bag[num] = temp;
-                }
-            }
-            else if (bag[num].GetType() == typeof(ItemGema))
-            {
-                bool check = true;
-                for (int i = 0; i<gemas.Length; i++)
-                {
-                    if(gemas[i] == null)
+                    if (arma == null)
                     {
-                        Program.buffer.InsertText("Te has equipado " + bag[num].GetName());
-                        gemas[i] =(ItemGema) bag[num];
+                        Program.buffer.InsertText("Te has equipado " + item.GetName());
+                        arma = (ItemWeapon)item;
                         bag[num] = null;
-                        i = bag.Length;
-                        check = false;
-                    }
-                }
-                if (check)
-                {
-                    Program.buffer.InsertText("¿Que gema quieres desequiparte?");
-                    Program.pl.ListOfGems();
-                    Program.buffer.PrintBackground();
-                    Program.buffer.PrintText(Program.buffer.height - 3);
-                    Program.buffer.Print(1, 0, "PRINCIPAL");
-                    Program.buffer.Print(1, Program.buffer.height - 2, ">");
-                    Program.SmallMap();
-                    Program.buffer.PrintScreen();
-                    Console.SetCursorPosition(2, Program.buffer.height - 2);
-                    int num1;
-                    bool obj = int.TryParse(Console.ReadLine(), out num1);
-                    if (obj && num1 >= 0 && num1 < gemas.Length && gemas[num1] != null)
-                    {
-                        Program.buffer.InsertText("Te has equipado " + bag[num].GetName());
-                        Program.buffer.InsertText("Te has desequipado " + gemas[num1].GetName());
-                        ItemGema temp = gemas[num1];
-                        gemas[num1] =(ItemGema) bag[num];
-                        bag[num] = temp;
-                    }
-                    else if (!obj)
-                    {
-                        Program.buffer.InsertText("Tiene que ser un numero");
                     }
                     else
                     {
-                        Program.buffer.InsertText("Esa posicion no es válida");
+                        Program.buffer.InsertText("Te has equipado " + item.GetName());
+                        Program.buffer.InsertText("Te has desequipado " + arma.GetName());
+                        ItemWeapon temp = arma;
+                        arma = (ItemWeapon)item;
+                        bag[num] = temp;
                     }
+                }
+                else if (item.GetType() == typeof(ItemGema))
+                {
+                    bool check = true;
+                    for (int i = 0; i < gemas.Length; i++)
+                    {
+                        if (gemas[i] == null)
+                        {
+                            Program.buffer.InsertText("Te has equipado " + item.GetName());
+                            gemas[i] = (ItemGema)item;
+                            bag[num] = null;
+                            i = bag.Length;
+                            check = false;
+                        }
+                    }
+                    if (check)
+                    {
+                        Program.buffer.InsertText("¿Que gema quieres desequiparte?");
+                        ListOfGems();
+                        Program.buffer.PrintBackground();
+                        Program.buffer.PrintText(Program.buffer.height - 3);
+                        Program.buffer.Print(1, 0, "PRINCIPAL");
+                        Program.buffer.Print(1, Program.buffer.height - 2, ">");
+                        Program.SmallMap();
+                        Program.buffer.PrintScreen();
+                        Console.SetCursorPosition(2, Program.buffer.height - 2);
+
+                        bool obj = int.TryParse(Console.ReadLine(), out int num1);
+                        if (obj && num1 >= 0 && num1 < gemas.Length && gemas[num1] != null)
+                        {
+                            Program.buffer.InsertText("Te has equipado " + item.GetName());
+                            Program.buffer.InsertText("Te has desequipado " + item.GetName());
+                            ItemGema temp = gemas[num1];
+                            gemas[num1] = (ItemGema)item;
+                            bag[num] = temp;
+                        }
+                        else if (!obj)
+                        {
+                            Program.buffer.InsertText("Tiene que ser un numero");
+                        }
+                        else
+                        {
+                            Program.buffer.InsertText("Esa posicion no es válida");
+                        }
+                    }
+                }
+                else if (item.GetType() == typeof(ItemArmor))
+                {
+                    if (armadura == null)
+                    {
+                        Program.buffer.InsertText("Te has equipado " + item.GetName());
+                        armadura = (ItemArmor)bag[num];
+                        bag[num] = null;
+                    }
+                    else
+                    {
+                        Program.buffer.InsertText("Te has equipado " + item.GetName());
+                        Program.buffer.InsertText("Te has desequipado " + armadura.GetName());
+                        ItemArmor temp = armadura;
+                        armadura = (ItemArmor)item;
+                        bag[num] = temp;
+                    }
+
                 }
             }
             else
@@ -265,9 +326,9 @@ namespace TextAdventure
 
         public void GetItem(Item item)
         {
-            for(int i = 0; i<bag.Length; i++)
+            for (int i = 0; i < bag.Length; i++)
             {
-                if(bag[i] == null)
+                if (bag[i] == null)
                 {
                     bag[i] = item;
                     i = bag.Length;
@@ -278,9 +339,9 @@ namespace TextAdventure
         public bool FilledGemas()
         {
             bool ret = true;
-            for(int i = 0; i< gemas.Length; i++)
+            for (int i = 0; i < gemas.Length; i++)
             {
-                if(gemas[i] == null)
+                if (gemas[i] == null)
                 {
                     ret = false;
                     i = gemas.Length;
@@ -292,9 +353,9 @@ namespace TextAdventure
         public bool EmptyGemas()
         {
             bool ret = true;
-            for(int i = 0; i < gemas.Length; i++)
+            for (int i = 0; i < gemas.Length; i++)
             {
-                if(gemas[i] != null)
+                if (gemas[i] != null)
                 {
                     ret = false;
                     i = bag.Length;
@@ -335,17 +396,6 @@ namespace TextAdventure
             return def;
         }
 
-        public float GetGemsAcc()
-        {
-            float acc = 0;
-            for (int i = 0; i < gemas.Length; i++)
-            {
-                if (gemas[i] != null)
-                    acc += gemas[i].ModifierAcc();
-            }
-            return acc;
-        }
-
 
         public ItemGema[] GetGemas()
         {
@@ -360,12 +410,13 @@ namespace TextAdventure
             {
                 if (gemas[j] != null)
                 {
-                    text += "[" + j + "]->" + gemas[j].GetName() + "  ";
-                    if (acc % 5 == 4)
+                    string temp = "[" + j + "]->" + gemas[j].GetName();
+                    if (text.Length + temp.Length > 100)
                     {
                         Program.buffer.InsertText(text);
                         text = "    ";
                     }
+                    text += temp + "  ";
                     acc++;
                 }
             }
@@ -378,7 +429,7 @@ namespace TextAdventure
         public void ObtenMaldicion()
         {
             bool maldito = true;
-            for(int i = 0; i<mal.Length; i++)
+            for (int i = 0; i < mal.Length; i++)
             {
                 if (mal[i] == null)
                     maldito = false;
@@ -422,7 +473,7 @@ namespace TextAdventure
 
         public bool GetMaldicion(int id)
         {
-            for(int i = 0; i<mal.Length; i++)
+            for (int i = 0; i < mal.Length; i++)
             {
                 if (mal[i] != null && id == mal[i].GetId())
                     return true;
@@ -444,17 +495,12 @@ namespace TextAdventure
             int suma = 0;
             if (arma != null)
                 suma += arma.ModifierAtt();
+            if (armadura != null)
+                suma += armadura.ModifierAtt();
+            
+                suma += GetGemsAtt();
 
-            return base.GetAtt() + suma + GetGemsAtt();
-        }
-
-        public override float GetAccuracy()
-        {
-            float suma = 0;
-            if (arma != null)
-                suma += arma.ModifierAcc();
-
-            return base.GetAccuracy()+ suma + GetGemsAcc();
+            return base.GetAtt() + suma;
         }
 
         public override int GetDef()
@@ -462,8 +508,12 @@ namespace TextAdventure
             int suma = 0;
             if (arma != null)
                 suma += arma.ModifierDef();
+            if (armadura != null)
+                suma += armadura.ModifierDef();
 
-            return base.GetDef() + suma + GetGemsDef();
+            suma += GetGemsDef();
+
+            return base.GetDef() + suma;
         }
 
         public void RestoreHealth()
@@ -486,6 +536,14 @@ namespace TextAdventure
             mana = (mana + cantidad > manaM) ? manaM : mana + cantidad;
         }
 
+        public override float GetHitPerc()
+        {
+            float fff = base.GetHitPerc();
+            if (arma != null)
+                fff += arma.GetHitPercFloat();
+            return fff;
+        }
+
         /*Sin añadir ni gemas ni arma*/
         public int GetFlatAtt()
         {
@@ -497,15 +555,11 @@ namespace TextAdventure
             return base.GetDef();
         }
 
-        public float GetFlatAccuracy()
-        {
-            return base.GetAccuracy();
-        }
-
         /*_______________Consumicion______________*/
-        public void ConsumeItem(int num)
+        public bool ConsumeItem(int num)
         {
-            if(bag[num].GetType() == typeof(ItemPocion))
+            bool control = false;
+            if (bag[num].GetType() == typeof(ItemPocion))
             {
                 ItemPocion item = (ItemPocion)bag[num];
                 item.Consumir();
@@ -524,17 +578,21 @@ namespace TextAdventure
                         Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y te has recuperado el máximo de maná");
                 }
                 bag[num] = null;
-            }else if (bag[num].GetType() == typeof(ItemScroll))
+                control = true;
+            }
+            else if (bag[num].GetType() == typeof(ItemScroll))
             {
                 ItemScroll item = (ItemScroll)bag[num];
                 item.Consumir();
                 bag[num] = null;
+                control = true;
             }
             else
             {
-                Program.buffer.InsertText(bag[num].GetName()+" no se puede consumir");
+                Program.buffer.InsertText(bag[num].GetName() + " no se puede consumir");
             }
             Item.Ordenar(bag);
+            return control;
         }
     }
 }

@@ -21,20 +21,22 @@ namespace TextAdventure.Rooms
             this.x = x;
             this.y = y;
             descr = FileReader.RandomDescr("Text/roomDescr.txt");
-            double prob = (level < 4)? 0.1+0.3 * level / 4d : 0.4;
-            if (CustomMath.RandomUnit() < prob && !(x == 0 && y == 0))
-                ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length-1)],(int) Math.Pow(level,1.4));
-            else
-                ene = null;
-            if (CustomMath.RandomUnit() < 0.05)
+            if (!(x == 0 && y == 0))
             {
-                if (CustomMath.RandomUnit() < 0.5)
+                double prob = (level < 4) ? 0.1 + 0.3 * level / 4d : 0.4;
+                if (CustomMath.RandomUnit() < prob)
+                    ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length - 1)], (int)Math.Pow(level, 1.2));
+
+                if (CustomMath.RandomUnit() < 0.02)
                 {
-                    item[0] = new ItemPocion("Poción de vida", CustomMath.RandomIntNumber(75, 50), ItemPocion.PocionType.hp);
-                }
-                else
-                {
-                    item[0] = new ItemPocion("Poción de mana", CustomMath.RandomIntNumber(75, 50), ItemPocion.PocionType.mana);
+                    if (CustomMath.RandomUnit() < 0.5)
+                    {
+                        item[0] = new ItemPocion("Poción de vida", CustomMath.RandomIntNumber(75, 50), ItemPocion.PocionType.hp);
+                    }
+                    else
+                    {
+                        item[0] = new ItemPocion("Poción de mana", CustomMath.RandomIntNumber(75, 50), ItemPocion.PocionType.mana);
+                    }
                 }
             }
         }
@@ -146,16 +148,17 @@ namespace TextAdventure.Rooms
             {
                 if (item[j] != null)
                 {
-                    text += "[" + j + "]->" + item[j].GetName() + "  ";
-                    if (acc % 5 == 4)
+                    string temp = "[" + j + "]->" + item[j].GetName();
+                    if (text.Length+temp.Length > 100)
                     {
                         Program.buffer.InsertText(text);
                         text = "    ";
                     }
+                    text +=  temp+ "  ";
                     acc++;
                 }
             }
-            if (acc % 5 != 4)
+            if (!text.Equals("    "))
             {
                 Program.buffer.InsertText(text);
             }

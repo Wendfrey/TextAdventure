@@ -38,21 +38,12 @@ namespace TextAdventure
                 else if (decide.Equals(comandos[1]))
                 {
                     buffer.InsertText("Te has puesto en guardia");
-                    float rand = (float)CustomMath.RandomUnit();
-                    if (rand <= ene.GetAccuracy())
-                    {
-                        int danorecibido = pl.ReceiveDamage(ene.GetAtt(), (int)(pl.GetDef() * 1.5));
-                        buffer.InsertText(ene.GetName() + " te ha hecho " + danorecibido + " de daño");
-                    }
-                    else
-                    {
-                        buffer.InsertText("¡" + ene.GetName() + " ha fallado!");
-                    }
+                    AtaqueDirigidoA(ene, pl, -2);
                 }
                 else if (decide.Equals(comandos[2]))
                 {
                     float rand = (float)CustomMath.RandomUnit();
-                    float probHuida = (pl.GetMaldicion(3)) ? pl.GetAccuracy() / 2f : pl.GetAccuracy();
+                    float probHuida = (pl.GetMaldicion(3)) ? 0.25f+pl.GetSpeed()/(float)(2*(pl.GetSpeed() +ene.GetSpeed())) : 0.25f+pl.GetSpeed() / (float)(pl.GetSpeed() + ene.GetSpeed());
                     if (rand < probHuida)
                     {
                         buffer.InsertText("¡Has huido!");
@@ -60,23 +51,14 @@ namespace TextAdventure
                     }
                     else
                     {
-                        if (pl.GetMaldicion(3) && rand < pl.GetAccuracy())
+                        if (pl.GetMaldicion(3) && rand < (probHuida-0.25f)*2+0.25f)
                         {
                             buffer.InsertText("Notas como las piernas no te responden y eres incapaz de moverte");
                         }
                         else
                         {
                             buffer.InsertText("¡No has podido huir!");
-                            rand = (float)CustomMath.RandomUnit();
-                            if (rand <= ene.GetAccuracy())
-                            {
-                                int danorecibido = pl.ReceiveDamage(ene.GetAtt(), (int)(pl.GetDef() * 1.5));
-                                buffer.InsertText(ene.GetName() + " te ha hecho " + danorecibido + " de daño");
-                            }
-                            else
-                            {
-                                buffer.InsertText("¡" + ene.GetName() + " ha fallado!");
-                            }
+                            AtaqueDirigidoA(ene, pl);
                         }
                     }
                 }
@@ -84,14 +66,13 @@ namespace TextAdventure
                 {
                     if (Comando.ConsumeItem())
                     {
-                        int danorecibido = pl.ReceiveDamage(ene.GetAtt(), pl.GetDef());
-                        buffer.InsertText(ene.GetName() + " te ha hecho " + danorecibido + " de daño");
+                        AtaqueDirigidoA(ene, pl);
                     }
                 }
                 else if (decide.Equals(comandos[4]))
                 {
                     buffer.InsertText("¿Que habilidad quieres usar?");
-                    buffer.InsertText("[0]-> Ataque Veloz [1]-> Golpe Aplastador");
+                    buffer.InsertText("[0]-> Ataque Veloz [1]-> Golpe Aplastador [2]-> Curación Menor [3]-> MegaGolpe");
                     buffer.Print(1, buffer.height - 2, ">");
                     BackgroundCombat();
                     Console.SetCursorPosition(2, Program.buffer.height - 2);
@@ -100,29 +81,65 @@ namespace TextAdventure
                     {
                         Program.buffer.InsertText("Solo acepta numeros");
                     }
-
-                    if (num >= 0 && num <= 1)
+                    if (num >= 0 && num <= 3)
                     {
-                        if(num == 0)
+                        if (num == 0)
+                        {
                             if (pl.GetMana() - 10 >= 0)
                             {
                                 pl.SetMana(pl.GetMana() - 10);
-                                Attack(pl, ene, 1);
+                                Attack(pl, ene, num);
                             }
                             else
                             {
                                 buffer.InsertText("No tienes suficiente maná");
                             }
-                        else if(num == 1)
+                        }
+                        else if (num == 1)
+                        {
+                            if (pl.GetMana() - 5 >= 0)
+                            {
+                                Attack(pl, ene, num);
+                            }
+                            else
+                            {
+                                buffer.InsertText("No tienes suficiente maná");
+                            }
+                        }
+                        else if(num == 2)
+                        {
                             if (pl.GetMana() - 5 >= 0)
                             {
                                 pl.SetMana(pl.GetMana() - 5);
-                                Attack(pl, ene, 2);
+                                NombreHabilidad(num);
+                                pl.RestoreHealth(5);
+                                if (pl.GetHealth() == pl.GetMHealth())
+                                {
+                                    buffer.InsertText("¡Te has recuperado al máximo!");
+                                }
+                                else
+                                {
+                                    buffer.InsertText("Has recuperado 5 de vida");
+                                }
+                                AtaqueDirigidoA(ene, pl, num);
                             }
                             else
                             {
                                 buffer.InsertText("No tienes suficiente maná");
                             }
+                        }
+                        else if (num ==3)
+                        {
+                            if (pl.GetMana() - 10 >= 0)
+                            {
+                                pl.SetMana(pl.GetMana() - 10);
+                                Attack(pl, ene, num);
+                            }
+                            else
+                            {
+                                buffer.InsertText("No tienes suficiente maná");
+                            }
+                        }
                     }
                     else
                     {
@@ -190,19 +207,18 @@ namespace TextAdventure
             buffer.Print(101, 3, "Hp  -> " + pl.GetHealth() + "/" + pl.GetMHealth());
             buffer.Print(101, 5, "Att -> " + pl.GetAtt());
             buffer.Print(101, 7, "Def -> " + pl.GetDef());
-            buffer.Print(101, 9, "Acc -> " + pl.GetAccuracy());
             buffer.Print(101, 11, "Maná -> " + pl.GetMana() + "/" + pl.GetManaM());
             buffer.Print(101, 13, "Vel -> " + pl.GetSpeed());
             buffer.PrintScreen();
         }
 
-        private static void Attack(Player pl, Enemigo ene, int hab = 0)
+        private static void Attack(Player pl, Enemigo ene, int hab = -1)
         {
             if (pl.GetSpeed() > ene.GetSpeed())
             {
                 //Jugador Ataca
                 NombreHabilidad(hab);
-                if (hab == 1)
+                if (hab == 0)
                 {
                     AtaqueDirigidoA(pl, ene, hab);
                 }
@@ -216,7 +232,7 @@ namespace TextAdventure
                 AtaqueDirigidoA(ene, pl);
                 //Jugador Ataca
                 NombreHabilidad(hab);
-                if (hab == 1)
+                if (hab == 0)
                 {
                     AtaqueDirigidoA(pl, ene, hab);
                 }
@@ -228,7 +244,7 @@ namespace TextAdventure
                 {
                     //Jugador Ataca
                     NombreHabilidad(hab);
-                    if (hab == 1)
+                    if (hab == 0)
                     {
                         AtaqueDirigidoA(pl, ene, hab);
                     }
@@ -242,7 +258,7 @@ namespace TextAdventure
                     AtaqueDirigidoA(ene, pl);
                     //Jugador Ataca
                     NombreHabilidad(hab);
-                    if (hab == 1)
+                    if (hab == 0)
                     {
                         AtaqueDirigidoA(pl, ene, hab);
                     }
@@ -253,27 +269,41 @@ namespace TextAdventure
 
         private static void NombreHabilidad(int hab)
         {
-            if (hab == 1)
+            if (hab == 0)
             {
                 buffer.InsertText("¡Has usado Ataque Veloz!");
             }
-            else if(hab == 2)
+            else if(hab == 1)
             {
                 buffer.InsertText("¡Has usado Golpe Aplastador!");
             }
+            else if(hab == 2)
+            {
+                buffer.InsertText("¡Has usado Curación Menor!");
+            }else if (hab == 3)
+            {
+                buffer.InsertText("¡Has usado MegaGolpe!");
+            }
         }
 
-        private static void AtaqueDirigidoA(CombatClass atacante, CombatClass defensor,int hab = 0)
+        private static void AtaqueDirigidoA(CombatClass atacante, CombatClass defensor,int hab = -1)
         {
             if (!atacante.IsDead())
             {
                 float rand = (float)CustomMath.RandomUnit();
-                if (rand <= atacante.GetAccuracy())
+                float acc = atacante.GetHitPerc()+rand;
+                if (hab == 3)
+                    acc /= 2; 
+                if (acc >= defensor.GetAvoidPerc())
                 {
                     int ataque = atacante.GetAtt();
                     int defensa = defensor.GetDef();
-                    if (hab == 2)
+                    if (hab == -2)
+                        defensa = (int)(defensa*1.5);
+                    else if (hab == 1)
                         ataque = (int)(ataque * 1.5);
+                    else if (hab == 3)
+                        ataque = ataque * 3;
                     int danorecibido = defensor.ReceiveDamage(ataque, defensa);
                     try
                     {

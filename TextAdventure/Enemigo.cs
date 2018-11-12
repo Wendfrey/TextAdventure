@@ -8,9 +8,9 @@ namespace TextAdventure
 {
     class Enemigo : CombatClass
     {
-        public static DatoEnemigo[] eneList = { new DatoEnemigo("Esqueleto", 230, 350, 0, 1f, 200,0,0), new DatoEnemigo("Goblin", 350, 300, 200, 0.7f, 300,0,0), new DatoEnemigo("Zombie", 420, 245, 500, 0.7f, 150,0,0), new DatoEnemigo("Slime",512, 170, 255, 1f,100,0,0)};
+        public static DatoEnemigo[] eneList = { new DatoEnemigo("Esqueleto", 230, 350, 0, 200, 0, 0, 0.45f, 0.1f), new DatoEnemigo("Goblin", 350, 300, 200, 300, 0, 0, 0.6f, 0.1f), new DatoEnemigo("Zombie", 420, 245, 500, 150 ,0, 0, 0.3f, 0.1f), new DatoEnemigo("Slime",512 , 170, 255,100 ,0 ,0 , 0, 0.1f)};
         string nombre;
-        int level;
+        readonly int level;
         public Enemigo(DatoEnemigo datoEnemigo, int level)
         {
             this.level = level;
@@ -19,16 +19,17 @@ namespace TextAdventure
             hp = hpM;
             att = (int)((5 + datoEnemigo.att * level / 100) * (1 - CustomMath.RandomUnit() * 0.1f));
             def = (int)((5 + datoEnemigo.def * level / 100) * (1 - CustomMath.RandomUnit() * 0.1f));
-            acc = datoEnemigo.acc;
             speed = (int)((5 + datoEnemigo.speed * level / 100) * (1 - CustomMath.RandomUnit() * 0.1f));
             manaM = (int)((5 + datoEnemigo.manaM * level / 100) * (1 - CustomMath.RandomUnit() * 0.1f));
             mana = manaM;
             attMa = (int)((5 + datoEnemigo.attMa * level / 100) * (1 - CustomMath.RandomUnit() * 0.1f));
+            avoidPerc = datoEnemigo.avoidPerc;
+            hitPerc = datoEnemigo.hitPerc;
         }
 
         public string GetName()
         {
-            return nombre + " ("+level+")";
+            return nombre;
         }
         public void SetName(string n)
         {
@@ -43,18 +44,20 @@ namespace TextAdventure
         {
             public string nombre;
             public int hpM, att, def, speed, manaM, attMa;
-            public float acc;
+            public float avoidPerc;
+            public float hitPerc;
 
-            public DatoEnemigo(string nombre, int hpM, int att, int def, float acc, int speed, int manaM, int attMa)
+            public DatoEnemigo(string nombre, int hpM, int att, int def, int speed, int manaM, int attMa, float avoidPerc, float hitPerc)
             {
                 this.nombre = nombre;
                 this.hpM = hpM;
                 this.att = att;
                 this.def = def;
-                this.acc = acc;
                 this.speed = speed;
                 this.manaM = manaM;
                 this.attMa = attMa;
+                this.avoidPerc = avoidPerc;
+                this.hitPerc = hitPerc;
             }
         }
         

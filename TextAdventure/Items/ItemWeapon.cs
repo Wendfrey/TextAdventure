@@ -8,9 +8,20 @@ namespace TextAdventure
 {
     class ItemWeapon : ItemEquipable
     {
-
-        public ItemWeapon(string name, int hp,int att, float acc) : base(name, hp, att, 0,acc)
+        protected int hitPerc;
+        public ItemWeapon(string name,int att, int hitPerc) : base(name: name, att: att)
         {
+            this.hitPerc = hitPerc;
+        }
+
+        public int GetHitPercInt()
+        {
+            return hitPerc;
+        }
+
+        public float GetHitPercFloat()
+        {
+            return hitPerc / 100f;
         }
 
     }
