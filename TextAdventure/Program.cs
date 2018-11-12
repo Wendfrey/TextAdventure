@@ -6,7 +6,7 @@ using TextAdventure.Rooms;
 namespace TextAdventure
 {
     class Program
-    {
+    {//hola
         static int width = 120;
         static int height = 20;
         static public ConsoleBuffer buffer = null;
