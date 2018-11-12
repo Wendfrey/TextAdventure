@@ -6,7 +6,7 @@ using TextAdventure.Rooms;
 namespace TextAdventure
 {
     class Program
-    {//hola
+    {
         static int width = 120;
         static int height = 20;
         static public ConsoleBuffer buffer = null;
@@ -346,7 +346,8 @@ namespace TextAdventure
                 {
                     level++;
                     goNextLevel = false;
-                    int cRooms = 10 + 5 * level;
+                    // hola
+                    int cRooms = (level > 10) ? 100 : 10 + 9 * level;
                     Level.StartLevel(cRooms);
                     lvlLayout = Level.actualRooms;
                     pl.currentRoom = lvlLayout[0];
