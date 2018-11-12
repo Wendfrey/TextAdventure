@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TextAdventure.Comandos;
-
+// Aqui va el combate
 namespace TextAdventure
 {
     class EscenaCombate
