@@ -25,7 +25,7 @@ namespace TextAdventure.Rooms
             {
                 double prob = (level < 4) ? 0.1 + 0.3 * level / 4d : 0.4;
                 if (CustomMath.RandomUnit() < prob)
-                    ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length - 1)], (int)Math.Pow(level, 1.2));
+                    ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length - 1)], level);
 
                 if (CustomMath.RandomUnit() < 0.02)
                 {

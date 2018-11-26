@@ -39,10 +39,5 @@ namespace TextAdventure
         {
             return (a < b);
         }
-
-        public static int ExpNeeded(int lvl)
-        {
-            return lvl*lvl*lvl;
-        }
     }
 }

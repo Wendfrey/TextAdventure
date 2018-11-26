@@ -90,7 +90,7 @@ namespace TextAdventure
         {
             if (Program.pl.GetMaldicion(0))
             {
-                string prohibido = "\"<>-|[]0987654321¿?!¡,.:'";
+                string prohibido = "\"\\<>|[]0987654321¿?!¡,;.:'_-+*()";
                 string[] mald = newText.Split(' ');
                 newText = "";
                 for (int i = 0; i < mald.Length; i++)

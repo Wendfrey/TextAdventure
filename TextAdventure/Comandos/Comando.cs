@@ -277,6 +277,8 @@ namespace TextAdventure.Comandos
             int modh = 0;
             int moda = 0;
             int modd = 0;
+            int modam = 0;
+            int modm = 0;
 
             for (int i = 0; i < bagitem.Length; i++)
             {
@@ -286,14 +288,19 @@ namespace TextAdventure.Comandos
                     modh += gema.ModifierHp();
                     moda += gema.ModifierAtt();
                     modd += gema.ModifierDef();
+                    modam += gema.ModifierAttM();
+                    modm += gema.ModifierManaM();
                 }
             }
+
             ItemWeapon weapon = Program.pl.GetWeapon();
             if (weapon != null)
             {
                 modh += weapon.ModifierHp();
                 moda += weapon.ModifierAtt();
                 modd += weapon.ModifierDef();
+                modam += weapon.ModifierAttM();
+                modm += weapon.ModifierManaM();
             }
             ItemArmor armor = Program.pl.GetArmor();
             if (armor != null)
@@ -301,29 +308,41 @@ namespace TextAdventure.Comandos
                 modh += armor.ModifierHp();
                 moda += armor.ModifierAtt();
                 modd += armor.ModifierDef();
+                modam += armor.ModifierAttM();
+                modm += armor.ModifierManaM();
             }
+
             Program.buffer.Print(1, 0, "STATS");
-
-            Program.buffer.Print(2, 3, "Nvl. " + Program.pl.GetLevel()+"  Exp. "+Program.pl.Experiencia);
-
+            
             if(modh == 0)
-                Program.buffer.Print(2, 5, "VIDA (HP)-> " + Program.pl.GetHealth() + "/" + Program.pl.GetMHealth() + " --> Capacidad de aguante");
+                Program.buffer.Print(2, 5, "VIDA (HP)           -> " + Program.pl.GetHealth() + "/" + Program.pl.GetMHealth() + " --> Capacidad de aguante");
             else
-                Program.buffer.Print(2, 5, "VIDA (HP)-> " + Program.pl.GetHealth() + "/" + Program.pl.GetMHealth() + "+(" + modh+ ") --> Capacidad de aguante");
+                Program.buffer.Print(2, 5, "VIDA (HP)           -> " + Program.pl.GetHealth() + "/" + Program.pl.GetMHealth() + "+(" + modh+ ") --> Capacidad de aguante");
 
             if (moda == 0)
-                Program.buffer.Print(2, 7, "ATAQUE (Att)-> " + Program.pl.GetFlatAtt() + " --> Daño que inflinges");
+                Program.buffer.Print(2, 7, "ATAQUE (Att)        -> " + Program.pl.GetFlatAtt() + " --> Daño que inflinges");
             else
-                Program.buffer.Print(2, 7, "ATAQUE (Att)-> " + Program.pl.GetFlatAtt() + "+(" + moda + ") --> Daño que inflinges");
+                Program.buffer.Print(2, 7, "ATAQUE (Att)        -> " + Program.pl.GetFlatAtt() + "+(" + moda + ") --> Daño que inflinges");
 
-            if(modd == 0)
-                Program.buffer.Print(2, 9, "DEFENSA (Def)-> " + Program.pl.GetFlatDef() + " --> Daño que reduces");
+            if (modd == 0)
+                Program.buffer.Print(2, 9, "DEFENSA (Def)       -> " + Program.pl.GetFlatDef() + " --> Daño que reduces");
             else
-                Program.buffer.Print(2, 9, "DEFENSA (Def)-> " + Program.pl.GetFlatDef() + "+(" + modd + ") --> Daño que reduces");
+                Program.buffer.Print(2, 9, "DEFENSA (Def)       -> " + Program.pl.GetFlatDef() + "+(" + modd + ") --> Daño que reduces");
 
-            Program.buffer.Print(2, 13, "MANA (mana) -> " + Program.pl.GetMana() + "/" + Program.pl.GetManaM());
+            if (modam == 0)
+                Program.buffer.Print(2, 11, "ATAQUE M. (Att M.)  -> " + Program.pl.GetAttMa() + " --> Daño por hechizos");
+            else
+                Program.buffer.Print(2, 11, "ATAQUE M. (Att M.)  -> " + Program.pl.GetAttMa() + "+(" + modam + ") --> Daño por hechizos");
 
-            Program.buffer.Print(2, 15, "Velocidad (Vel.) -> " + Program.pl.GetSpeed());
+            if (modm == 0)
+                Program.buffer.Print(2, 13, "MANA (mana)         -> " + Program.pl.GetMana() + "/" + Program.pl.GetManaM() + " --> Capacidad de hechizos");
+            else
+                Program.buffer.Print(2, 13, "MANA (mana)         -> " + Program.pl.GetMana() + "/" + Program.pl.GetManaM() + "+(" + modm + ") --> Capacidad de hechizos");
+
+
+            Program.buffer.Print(2, 13, "MANA (mana)         -> " + Program.pl.GetMana() + "/" + Program.pl.GetManaM());
+
+            Program.buffer.Print(2, 15, "Velocidad (Vel.)    -> " + Program.pl.GetSpeed());
 
             Program.SmallMap();
             Program.buffer.PrintScreen();
@@ -494,6 +513,37 @@ namespace TextAdventure.Comandos
             Room c = Program.pl.currentRoom;
             if (c.GetType() == typeof(RoomExit))
             {
+                bool control = true;
+                do
+                {
+                    Program.buffer.InsertText("[0] -> +HP    [1] -> +ATT    [2] -> +DEF  [3] -> +SPEED");
+                    Program.buffer.PrintBackground();
+                    Program.buffer.Print(1, Program.buffer.height - 2, ">");
+                    Program.buffer.PrintText(Program.buffer.height - 3);
+                    Program.buffer.PrintScreen();
+                    Console.SetCursorPosition(2, Program.buffer.height - 2);
+                    bool temp = int.TryParse(Console.ReadLine(), out int result);
+                    if (temp && (result >= 0 && result <= 3))
+                    {
+                        Player pl = Program.pl;
+                        switch (result)
+                        {
+                            case 0:
+                                pl.SetMaxHealth(pl.GetTotalHealth() + 15);
+                                break;
+                            case 1:
+                                pl.SetAtt(pl.GetFlatAtt() + 6);
+                                break;
+                            case 2:
+                                pl.SetDef(pl.GetFlatDef() + 6);
+                                break;
+                            case 3:
+                                pl.SetSpeed(pl.GetSpeed() + 5);
+                                break;
+                        }
+                        control = false;
+                    }
+                } while (control);
                 Program.goNextLevel = true;
                 return true;
             }
@@ -569,6 +619,7 @@ namespace TextAdventure.Comandos
             Program.buffer.Print(101, 3, "Hp  -> " + Program.pl.GetHealth() + "/" + Program.pl.GetMHealth());
             Program.buffer.Print(101, 5, "Att -> " + Program.pl.GetAtt());
             Program.buffer.Print(101, 7, "Def -> " + Program.pl.GetDef());
+            Program.buffer.Print(101, 9, "Att M. -> " + Program.pl.GetAttMa());
             Program.buffer.Print(101, 11, "Mana -> " + Program.pl.GetMana() + "/" + Program.pl.GetManaM());
             Program.buffer.Print(101, 13, "Vel. -> " + Program.pl.GetSpeed());
 
@@ -586,16 +637,16 @@ namespace TextAdventure.Comandos
                         Program.buffer.Print(55, 5 + i * 7, i.ToString()+":");
                         Program.buffer.Print(57, 6 + i * 7, gemas[i].GetName());
                         Program.buffer.Print(57, 7 + i * 7, "HP-> " + gemas[i].ModifierHp());
-                        Program.buffer.Print(57, 8 + i * 7, "ATT-> " + gemas[i].ModifierAtt());
-                        Program.buffer.Print(57, 9 + i * 7, "DEF-> " + gemas[i].ModifierDef());
+                        Program.buffer.Print(57, 8 + i * 7, "ATT M.-> " + gemas[i].ModifierAttM());
+                        Program.buffer.Print(57, 9 + i * 7, "MANA-> " + gemas[i].ModifierManaM());
                     }
                     else
                     {
                         Program.buffer.Print(78, 5, i.ToString() + ":");
                         Program.buffer.Print(80, 6, gemas[i].GetName());
                         Program.buffer.Print(80, 7, "HP-> " + gemas[i].ModifierHp());
-                        Program.buffer.Print(80, 8, "ATT-> " + gemas[i].ModifierAtt());
-                        Program.buffer.Print(80, 9, "DEF-> " + gemas[i].ModifierDef());
+                        Program.buffer.Print(80, 8, "ATT M.-> " + gemas[i].ModifierAttM());
+                        Program.buffer.Print(80, 9, "MANA-> " + gemas[i].ModifierManaM());
                     }
                 }
             }

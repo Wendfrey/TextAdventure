@@ -16,12 +16,27 @@ namespace TextAdventure
         protected int manaM;
         protected int attMa;
         protected int speed;
-        protected float hitPerc;
-        protected float avoidPerc;
-
-        public int ReceiveDamage(int att, int def)
+        protected virtual float hitPerc {
+            get;
+            set;
+        }
+        protected virtual float avoidPerc
         {
-            int damage = (int)(Math.Sin(Math.Atan2(att, def))*att*(1-CustomMath.RandomUnit()*0.1));
+            get;
+            set;
+        }
+
+        public int ReceiveDamage(int att, int def, bool notRandom = false)
+        {
+            int damage;
+            if (notRandom)
+            {
+                damage = (int)(Math.Sin(Math.Atan2(att, def)) * att);
+            }
+            else
+            {
+                damage = (int)(Math.Sin(Math.Atan2(att, def)) * att * (1 - (CustomMath.RandomIntNumber(20, 0) / 200f)));
+            }
             damage = (damage == 0) ? 1 : damage;
             hp -= damage;
             return damage;

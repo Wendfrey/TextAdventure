@@ -9,7 +9,7 @@ namespace TextAdventure
     class ItemWeapon : ItemEquipable
     {
         protected int hitPerc;
-        public ItemWeapon(string name,int att, int hitPerc) : base(name: name, att: att)
+        public ItemWeapon(string name, int att, int hitPerc, int attM = 0) : base(name: name, att: att, attMag:attM)
         {
             this.hitPerc = hitPerc;
         }

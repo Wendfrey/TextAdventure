@@ -18,10 +18,29 @@ namespace TextAdventure
         ItemWeapon arma = null;
         ItemArmor armadura = null;
         Maldicion[] mal = { null, null, null };
-        public bool levelUp = false;
-        int level;
-        int exp;
         int excesoMaldito = 0;
+        protected override float hitPerc
+        {
+            get
+            {
+                if (arma == null)
+                    return 0;
+                else
+                    return arma.GetHitPercFloat();
+            }
+        }
+
+        protected override float avoidPerc
+        {
+            get
+            {
+                if (armadura == null)
+                    return 0;
+                else
+                    return armadura.GetAvoidPercFloat();
+            }
+        }
+
         public int ExcesoMaldito
         {
             get
@@ -31,53 +50,25 @@ namespace TextAdventure
             set
             {
                 excesoMaldito = value;
-                hpM = ((400 * level / 100 + 20) * (10 - excesoMaldito)) / 10;
-                if (hp > hpM)
-                    hp = hpM;
+                if (hp > GetMHealth())
+                    hp = GetMHealth();
             }
         }
 
-        public int Experiencia
-        {
-            get
-            {
-                return exp;
-            }
-            set
-            {
-                exp = value;
-                while (CustomMath.ExpNeeded(level + 1) <= exp)
-                {
-                    level++;
-                    levelUp = true;
-
-                    int temp = hpM;
-                    hpM = ((400 * level / 100 + 20) * (10 - excesoMaldito)) / 10;
-                    hp += hpM - temp;
-                    att = 200 * level / 100 + 5;
-                    def = 200 * level / 100 + 5;
-                    speed = 200 * level / 100 + 5;
-                }
-            }
-        }
         public Player()
         {
-            level = 1;
-            Experiencia = 0;
             for (int i = 0; i < 5; i++)
                 bag[i] = new ItemPocion("Poción de vida", 50, ItemPocion.PocionType.hp);
 
-            armadura = new ItemArmor("Armadura Simple", 45);
+            armadura = new ItemArmor("Armadura Simple", 10,3,45);
 
-            hpM = ((400 * level / 100 + 20) * (10 - excesoMaldito)) / 10;
-            hp = hpM;
-            att = 200 * level / 100 + 5;
-            def = 200 * level / 100 + 5;
-            speed = 200 * level / 100 + 5;
+            hpM = 24;
+            hp = GetMHealth();
+            att = 5;
+            def = 5;
+            speed = 5;
             mana = 10;
             manaM = 10;
-            hitPerc = 0.1f;
-            avoidPerc = armadura.GetAvoidPercFloat();
         }
 
         public void SetCurrentRoom(Room room)
@@ -365,35 +356,56 @@ namespace TextAdventure
         }
         public int GetGemsAtt()
         {
-            int att = 0;
+            int suma = 0;
             for (int i = 0; i < gemas.Length; i++)
             {
                 if (gemas[i] != null)
-                    att += gemas[i].ModifierAtt();
+                    suma += gemas[i].ModifierAtt();
             }
-            return att;
+            return suma;
         }
 
         public int GetGemsHp()
         {
-            int hp = 0;
+            int suma = 0;
             for (int i = 0; i < gemas.Length; i++)
             {
                 if (gemas[i] != null)
-                    hp += gemas[i].ModifierHp();
+                    suma += gemas[i].ModifierHp();
             }
-            return hp;
+            return suma;
         }
 
         public int GetGemsDef()
         {
-            int def = 0;
+            int suma = 0;
             for (int i = 0; i < gemas.Length; i++)
             {
                 if (gemas[i] != null)
-                    def += gemas[i].ModifierDef();
+                    suma += gemas[i].ModifierDef();
             }
-            return def;
+            return suma;
+        }
+        public int GetGemsMana()
+        {
+            int suma = 0;
+            for (int i = 0; i < gemas.Length; i++)
+            {
+                if (gemas[i] != null)
+                    suma += gemas[i].ModifierManaM();
+            }
+            return suma;
+        }
+
+        public int GetGemsAttM()
+        {
+            int suma = 0;
+            for (int i = 0; i < gemas.Length; i++)
+            {
+                if (gemas[i] != null)
+                    suma += gemas[i].ModifierAttM();
+            }
+            return suma;
         }
 
 
@@ -458,10 +470,9 @@ namespace TextAdventure
             else
             {
                 Program.buffer.InsertText("Tienes tantas maldiciones que tu cuerpo no es capaz de aguantar más");
-                int temp = ((400 * level / 100 + 20) / 10);
                 ExcesoMaldito++;
-                Program.buffer.InsertText("Has perdido " + temp + " de vida maxima");
-                if (hpM <= 0)
+                Program.buffer.InsertText("Has perdido parte de tu vida maxima");
+                if (GetMHealth() <= 0)
                 {
                     Program.buffer.InsertText("El peso de las maldiciones exprime tu ultima gota de tu alma");
                     Program.buffer.InsertText("Caes muerto en el suelo");
@@ -485,9 +496,20 @@ namespace TextAdventure
             return mal;
         }
         /*_________________Estadisticas____________*/
-        public int GetLevel()
+
+        public override int GetMHealth()
         {
-            return level;
+            int suma = 0;
+            if(arma != null)
+            {
+                suma += arma.ModifierHp();
+            }
+            if(armadura != null)
+            {
+                suma += armadura.ModifierHp();
+            }
+            suma += GetGemsHp();
+            return (base.GetMHealth() + suma) * (10 - excesoMaldito) / 10;
         }
 
         override public int GetAtt()
@@ -503,6 +525,11 @@ namespace TextAdventure
             return base.GetAtt() + suma;
         }
 
+        public void SetAtt(int attn)
+        {
+            att = attn;
+        }
+
         public override int GetDef()
         {
             int suma = 0;
@@ -516,32 +543,73 @@ namespace TextAdventure
             return base.GetDef() + suma;
         }
 
+        public void SetDef(int defn)
+        {
+            def = defn;
+        }
+
+        public override int GetAttMa()
+        {
+            int suma = 0;
+            if (arma != null)
+                suma += arma.ModifierAttM();
+            if (armadura != null)
+                suma += armadura.ModifierAttM();
+            suma += GetGemsAttM();
+            return base.GetAttMa()+suma;
+        }
+
         public void RestoreHealth()
         {
-            hp = hpM;
+            hp = GetMHealth();
         }
 
         public void RestoreHealth(int cantidad)
         {
-            hp = (hp + cantidad > hpM) ? hpM : hp + cantidad;
+            hp = (hp + cantidad > GetMHealth()) ? GetMHealth() : hp + cantidad;
+        }
+
+        public void SetMaxHealth(int mHealth)
+        {
+            hp -= hpM;
+            hpM = mHealth;
+            hp += hpM;
+            if (hp <= 0)
+            {
+                hp = 1;
+            }
+        }
+
+        public int GetTotalHealth()
+        {
+            return hpM;
+        }
+
+        public override int GetManaM()
+        {
+            int suma = 0;
+            if (arma != null)
+                suma += arma.ModifierManaM();
+            if (armadura != null)
+                suma += armadura.ModifierManaM();
+            suma += GetGemsMana();
+
+            return base.GetManaM()+suma;
         }
 
         public void RestoreMana()
         {
-            mana = manaM;
+            mana = GetManaM();
         }
 
         public void RestoreMana(int cantidad)
         {
-            mana = (mana + cantidad > manaM) ? manaM : mana + cantidad;
+            mana = (mana + cantidad > GetManaM()) ? GetManaM() : mana + cantidad;
         }
 
-        public override float GetHitPerc()
+        public void SetSpeed(int spN)
         {
-            float fff = base.GetHitPerc();
-            if (arma != null)
-                fff += arma.GetHitPercFloat();
-            return fff;
+            speed = spN;
         }
 
         /*Sin añadir ni gemas ni arma*/
@@ -565,7 +633,7 @@ namespace TextAdventure
                 item.Consumir();
                 if (item.GetPocionType() == ItemPocion.PocionType.hp)
                 {
-                    if (hp < hpM)
+                    if (hp < GetMHealth())
                         Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y has recuperado " + item.GetRecoveryStat() + " de vida");
                     else
                         Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y te has recuperado el máximo de vida");

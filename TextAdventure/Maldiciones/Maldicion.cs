@@ -8,7 +8,7 @@ namespace TextAdventure.Maldiciones
 {
     class Maldicion
     {
-        public static int cantidadMaldiciones = 5;
+        public static int cantidadMaldiciones = 6;
 
         readonly string name;
         readonly int id;
@@ -33,6 +33,9 @@ namespace TextAdventure.Maldiciones
                     for (int i = 0; i < Program.lvlLayout.Count; i++)
                         Program.lvlLayout[i].SetVisible(0);
                     Program.pl.currentRoom.SetVisible(2);
+                    break;
+                case 5:
+                    name = "Maldición del hipocondriaco";
                     break;
             }
         }

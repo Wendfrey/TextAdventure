@@ -14,30 +14,34 @@ namespace TextAdventure.Rooms
             double random = CustomMath.RandomUnit();
             if (CustomMath.RandomUnit() < 1/3d)
             {
-                ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length - 1)], ((int)Math.Pow(Program.GetLevel() + 1, 1.2) < Program.pl.GetLevel()) ? Program.pl.GetLevel() : (int) Math.Pow(Program.GetLevel() + 1, 1.4));
+                ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length - 1)], (int) Math.Pow(Program.GetLevel() + 1, 1.4));
                 ene.SetName("Super " + ene.GetName());
                 if(random < 0.5)
                 {
-                    item[0] = new ItemWeapon("Espada legendaria", CustomMath.RandomIntNumber(5, 3) + Program.level, 50);
+                    item[0] = new ItemWeapon("Espada legendaria", CustomMath.RandomIntNumber(5, 3) + Program.level, 20, CustomMath.RandomIntNumber(5, 3) + Program.level);
                 }
                 else
                 {
-                    item[0] = new ItemWeapon("Espada de espadas", CustomMath.RandomIntNumber(3, 0) + Program.level*2, 5);
+                    item[0] = new ItemWeapon("Espada de espadas", (CustomMath.RandomIntNumber(3, 0) + Program.level)*2, -10);
                 }
             }
             else
             {
                 if (random < 0.05)
                 {
-                    item[0] = new ItemWeapon("Espada legendaria", CustomMath.RandomIntNumber(5, 3) + Program.level, 50);
+                    item[0] = new ItemWeapon("Espada legendaria", CustomMath.RandomIntNumber(5, 3) + Program.level, 20, CustomMath.RandomIntNumber(5, 3) + Program.level);
                 }
                 else if (random < 0.3)
                 {
                     item[0] = new ItemWeapon("Espada buena", CustomMath.RandomIntNumber(3, 0) + Program.level, 20);
                 }
-                else if (random < 0.95)
+                else if (random < 0.675)
                 {
                     item[0] = new ItemWeapon("Espada normal", (CustomMath.RandomIntNumber(3, 0) + Program.level) / 2, 10);
+                }
+                else if (random < 0.95)
+                {
+                    item[0] = new ItemWeapon("Baston Mágico", (CustomMath.RandomIntNumber(2, 0) + Program.level) / 3, 10, CustomMath.RandomIntNumber(3,1)+Program.level/2);
                 }
                 else
                 {

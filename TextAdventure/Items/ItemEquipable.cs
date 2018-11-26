@@ -39,5 +39,15 @@ namespace TextAdventure
         {
             return defM;
         }
+
+        public int ModifierManaM()
+        {
+            return manaM;
+        }
+
+        public int ModifierAttM()
+        {
+            return attMM;
+        }
     }
 }

@@ -72,7 +72,7 @@ namespace TextAdventure
                 else if (decide.Equals(comandos[4]))
                 {
                     buffer.InsertText("¿Que habilidad quieres usar?");
-                    buffer.InsertText("[0]-> Ataque Veloz [1]-> Golpe Aplastador [2]-> Curación Menor [3]-> MegaGolpe");
+                    buffer.InsertText("[0]-> Ataque Veloz [1]-> Golpe Aplastador [2]-> Curación Menor [3]-> MegaGolpe [4]-> Dardos Mágicos");
                     buffer.Print(1, buffer.height - 2, ">");
                     BackgroundCombat();
                     Console.SetCursorPosition(2, Program.buffer.height - 2);
@@ -81,65 +81,36 @@ namespace TextAdventure
                     {
                         Program.buffer.InsertText("Solo acepta numeros");
                     }
-                    if (num >= 0 && num <= 3)
+                    if (num >= 0 && num <= 4)
                     {
-                        if (num == 0)
+                        bool used = true;
+                        if (num == 0 && pl.GetMana() - 10 >= 0)
                         {
-                            if (pl.GetMana() - 10 >= 0)
-                            {
-                                pl.SetMana(pl.GetMana() - 10);
-                                Attack(pl, ene, num);
-                            }
-                            else
-                            {
-                                buffer.InsertText("No tienes suficiente maná");
-                            }
+                            pl.SetMana(pl.GetMana() - 10);
                         }
-                        else if (num == 1)
+                        else if (num == 1 && pl.GetMana() - 5 >= 0)
                         {
-                            if (pl.GetMana() - 5 >= 0)
-                            {
-                                Attack(pl, ene, num);
-                            }
-                            else
-                            {
-                                buffer.InsertText("No tienes suficiente maná");
-                            }
+                            pl.SetMana(pl.GetMana() - 5);
                         }
-                        else if(num == 2)
+                        else if (num == 2 && pl.GetMana() - 5 >= 0)
                         {
-                            if (pl.GetMana() - 5 >= 0)
-                            {
-                                pl.SetMana(pl.GetMana() - 5);
-                                NombreHabilidad(num);
-                                pl.RestoreHealth(5);
-                                if (pl.GetHealth() == pl.GetMHealth())
-                                {
-                                    buffer.InsertText("¡Te has recuperado al máximo!");
-                                }
-                                else
-                                {
-                                    buffer.InsertText("Has recuperado 5 de vida");
-                                }
-                                AtaqueDirigidoA(ene, pl, num);
-                            }
-                            else
-                            {
-                                buffer.InsertText("No tienes suficiente maná");
-                            }
+                            pl.SetMana(pl.GetMana() - 5);
                         }
-                        else if (num ==3)
+                        else if (num == 3 && pl.GetMana() - 10 >= 0)
                         {
-                            if (pl.GetMana() - 10 >= 0)
-                            {
-                                pl.SetMana(pl.GetMana() - 10);
-                                Attack(pl, ene, num);
-                            }
-                            else
-                            {
-                                buffer.InsertText("No tienes suficiente maná");
-                            }
+                            pl.SetMana(pl.GetMana() - 10);
                         }
+                        else if (num == 4 && pl.GetMana() - 10 >= 0)
+                        {
+                            pl.SetMana(pl.GetMana() - 10);
+                        }
+                        else
+                        {
+                            buffer.InsertText("No tienes suficiente maná");
+                            used = false;
+                        }
+                        if (used)
+                            Attack(pl, ene, num);
                     }
                     else
                     {
@@ -162,14 +133,7 @@ namespace TextAdventure
             {
                 buffer.InsertText("");
                 int exp = 5 + 3 * ene.GetLevel();
-                buffer.InsertText("¡Has derrotado a " + ene.GetName() + ", has conseguido " + exp + " xp!");
-                pl.Experiencia += exp;
-                if (pl.levelUp)
-                {
-                    pl.levelUp = false;
-                    buffer.InsertText("¡HAS SUBIDO DE NIVEL!");
-                    buffer.InsertText("Nivel: " + (pl.GetLevel() - 1) + " >> " + pl.GetLevel());
-                }
+                buffer.InsertText("¡Has derrotado a " + ene.GetName());
                 pl.currentRoom.ene = null;
             }
             buffer.InsertText("pulsa cualquier boton para continuar");
@@ -207,6 +171,7 @@ namespace TextAdventure
             buffer.Print(101, 3, "Hp  -> " + pl.GetHealth() + "/" + pl.GetMHealth());
             buffer.Print(101, 5, "Att -> " + pl.GetAtt());
             buffer.Print(101, 7, "Def -> " + pl.GetDef());
+            buffer.Print(101, 9, "Att M. -> " + pl.GetAttMa());
             buffer.Print(101, 11, "Maná -> " + pl.GetMana() + "/" + pl.GetManaM());
             buffer.Print(101, 13, "Vel -> " + pl.GetSpeed());
             buffer.PrintScreen();
@@ -222,7 +187,22 @@ namespace TextAdventure
                 {
                     AtaqueDirigidoA(pl, ene, hab);
                 }
-                AtaqueDirigidoA(pl, ene, hab);
+                else if(hab == 2)
+                {
+                    int rstH = 5 + pl.GetAttMa();
+                    pl.RestoreHealth(rstH);
+                    if (pl.GetHealth() == pl.GetMHealth())
+                    {
+                        buffer.InsertText("¡Te has recuperado al máximo!");
+                    }
+                }
+                else if(hab == 4)
+                {
+                    AtaqueDirigidoA(pl, ene, hab);
+                    AtaqueDirigidoA(pl, ene, hab);
+                }
+                if(hab != 2)
+                    AtaqueDirigidoA(pl, ene, hab);
                 //Enemigo Ataca
                 AtaqueDirigidoA(ene, pl);
             }
@@ -236,7 +216,22 @@ namespace TextAdventure
                 {
                     AtaqueDirigidoA(pl, ene, hab);
                 }
-                AtaqueDirigidoA(pl, ene, hab);
+                else if (hab == 2)
+                {
+                    int rstH = 5 + pl.GetAttMa();
+                    pl.RestoreHealth(rstH);
+                    if (pl.GetHealth() == pl.GetMHealth())
+                    {
+                        buffer.InsertText("¡Te has recuperado al máximo!");
+                    }
+                }
+                else if (hab == 4)
+                {
+                    AtaqueDirigidoA(pl, ene, hab);
+                    AtaqueDirigidoA(pl, ene, hab);
+                }
+                if (hab != 2)
+                    AtaqueDirigidoA(pl, ene, hab);
             }
             else
             {
@@ -248,7 +243,22 @@ namespace TextAdventure
                     {
                         AtaqueDirigidoA(pl, ene, hab);
                     }
-                    AtaqueDirigidoA(pl, ene, hab);
+                    else if (hab == 2)
+                    {
+                        int rstH = 5 + pl.GetAttMa();
+                        pl.RestoreHealth(rstH);
+                        if (pl.GetHealth() == pl.GetMHealth())
+                        {
+                            buffer.InsertText("¡Te has recuperado al máximo!");
+                        }
+                    }
+                    else if (hab == 4)
+                    {
+                        AtaqueDirigidoA(pl, ene, hab);
+                        AtaqueDirigidoA(pl, ene, hab);
+                    }
+                    if (hab != 2)
+                        AtaqueDirigidoA(pl, ene, hab);
                     //Enemigo Ataca
                     AtaqueDirigidoA(ene, pl);
                 }
@@ -262,7 +272,22 @@ namespace TextAdventure
                     {
                         AtaqueDirigidoA(pl, ene, hab);
                     }
-                    AtaqueDirigidoA(pl, ene, hab);
+                    else if (hab == 2)
+                    {
+                        int rstH = 5 + pl.GetAttMa();
+                        pl.RestoreHealth(rstH);
+                        if (pl.GetHealth() == pl.GetMHealth())
+                        {
+                            buffer.InsertText("¡Te has recuperado al máximo!");
+                        }
+                    }
+                    else if (hab == 4)
+                    {
+                        AtaqueDirigidoA(pl, ene, hab);
+                        AtaqueDirigidoA(pl, ene, hab);
+                    }
+                    if (hab != 2)
+                        AtaqueDirigidoA(pl, ene, hab);
                 }
             }
         }
@@ -280,11 +305,16 @@ namespace TextAdventure
             else if(hab == 2)
             {
                 buffer.InsertText("¡Has usado Curación Menor!");
-            }else if (hab == 3)
+            }
+            else if (hab == 3)
             {
                 buffer.InsertText("¡Has usado MegaGolpe!");
             }
-        }
+            else if (hab == 4)
+            {
+                buffer.InsertText("¡Has usado Dardos Mágicos!");
+            }
+}
 
         private static void AtaqueDirigidoA(CombatClass atacante, CombatClass defensor,int hab = -1)
         {
@@ -293,7 +323,11 @@ namespace TextAdventure
                 float rand = (float)CustomMath.RandomUnit();
                 float acc = atacante.GetHitPerc()+rand;
                 if (hab == 3)
-                    acc /= 2; 
+                    acc /= 2;
+                else if(hab == 4)
+                {
+                    acc = 1;
+                }
                 if (acc >= defensor.GetAvoidPerc())
                 {
                     int ataque = atacante.GetAtt();
@@ -304,13 +338,28 @@ namespace TextAdventure
                         ataque = (int)(ataque * 1.5);
                     else if (hab == 3)
                         ataque = ataque * 3;
-                    int danorecibido = defensor.ReceiveDamage(ataque, defensa);
+                    else if(hab == 4)
+                    {
+                        ataque = CustomMath.RandomIntNumber(3,1)+atacante.GetAttMa()/2;
+                        defensa = 0;
+                    }
+                    int danorecibido = defensor.ReceiveDamage(ataque, defensa,(hab == 4));
                     try
                     {
                         if (atacante.GetType() == typeof(Player))
                             buffer.InsertText("Has hecho " + danorecibido + " de daño a " + ((Enemigo)defensor).GetName());
                         else
-                            buffer.InsertText(((Enemigo)atacante).GetName() + " te ha hecho " + danorecibido + " de daño");
+                        {
+                            if (pl.GetMaldicion(5))
+                            {
+                                danorecibido = CustomMath.RandomIntNumber(10000, 5000);
+                                buffer.InsertText(((Enemigo)atacante).GetName() + " te ha hecho " + danorecibido + " de daño");
+                            }
+                            else
+                            {
+                                buffer.InsertText(((Enemigo)atacante).GetName() + " te ha hecho " + danorecibido + " de daño");
+                            }
+                        }
                     }catch(InvalidCastException e)
                     {
                         buffer.InsertText("Error: " + e.Message);

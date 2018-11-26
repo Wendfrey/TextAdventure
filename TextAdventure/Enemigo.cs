@@ -8,7 +8,7 @@ namespace TextAdventure
 {
     class Enemigo : CombatClass
     {
-        public static DatoEnemigo[] eneList = { new DatoEnemigo("Esqueleto", 230, 350, 0, 200, 0, 0, 0.45f, 0.1f), new DatoEnemigo("Goblin", 350, 300, 200, 300, 0, 0, 0.6f, 0.1f), new DatoEnemigo("Zombie", 420, 245, 500, 150 ,0, 0, 0.3f, 0.1f), new DatoEnemigo("Slime",512 , 170, 255,100 ,0 ,0 , 0, 0.1f)};
+        public static DatoEnemigo[] eneList = { new DatoEnemigo("Esqueleto", 115, 175, 0, 100, 0, 0, 0.45f, 0.3f), new DatoEnemigo("Goblin", 175, 150, 200, 150, 0, 0, 0.5f, 0.1f), new DatoEnemigo("Zombie", 300, 120, 200, 150 ,0, 0, 0.3f, 0.1f), new DatoEnemigo("Slime",512 , 85, 255,100 ,0 ,0 , 0, 0.1f)};
         string nombre;
         readonly int level;
         public Enemigo(DatoEnemigo datoEnemigo, int level)

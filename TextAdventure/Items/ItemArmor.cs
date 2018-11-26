@@ -9,7 +9,7 @@ namespace TextAdventure
     class ItemArmor : ItemEquipable
     {
         readonly int avoidPerc;
-        public ItemArmor(string name, int avoidPerc) : base(name: name, def: 3)
+        public ItemArmor(string name, int hp, int def, int avoidPerc) : base(name: name, hp: hp, def: def)
         {
             this.avoidPerc = avoidPerc;
         }
