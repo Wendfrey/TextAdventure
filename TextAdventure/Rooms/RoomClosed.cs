@@ -27,6 +27,8 @@ namespace TextAdventure.Rooms
             }
             else
             {
+                if(CustomMath.RandomUnit() < 0.25)
+                    ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length - 1)], Program.GetLevel());
                 if (random < 0.05)
                 {
                     item[0] = new ItemWeapon("Espada legendaria", CustomMath.RandomIntNumber(5, 3) + Program.level, 20, CustomMath.RandomIntNumber(5, 3) + Program.level);
@@ -41,7 +43,7 @@ namespace TextAdventure.Rooms
                 }
                 else if (random < 0.95)
                 {
-                    item[0] = new ItemWeapon("Baston Mágico", (CustomMath.RandomIntNumber(2, 0) + Program.level) / 3, 10, CustomMath.RandomIntNumber(3,1)+Program.level/2);
+                    item[0] = new ItemWeapon("Baston Mágico", (CustomMath.RandomIntNumber(2, 0) + Program.level) / 3, 10, CustomMath.RandomIntNumber(1 + Program.level, 1 + Program.level / 2));
                 }
                 else
                 {

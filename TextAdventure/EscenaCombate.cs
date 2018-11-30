@@ -25,6 +25,7 @@ namespace TextAdventure
             BackgroundCombat();
             string[] comandos = { "atacar", "defender", "huir", "consumir", "habilidad" };
             bool huir = false;
+            int itemHuir = -1;
             while (!(pl.IsDead() || ene.IsDead() || huir))
             {
                 Console.SetCursorPosition(1, 18);
@@ -64,9 +65,22 @@ namespace TextAdventure
                 }
                 else if (decide.Equals(comandos[3]))
                 {
-                    if (Comando.ConsumeItem())
+                    int i = Comando.ConsumeItemCombat();
+                    if (i>-1)
                     {
-                        AtaqueDirigidoA(ene, pl);
+                        if(pl.GetBag()[i].GetType() == typeof(ItemScroll))
+                        {
+                            ItemScroll itemScroll = (ItemScroll)pl.GetBag()[i];
+                            if (itemScroll.GetId() == 1)
+                            {
+                                itemHuir = i;
+                                huir = true;
+                            }
+                        }
+                        if (itemHuir == 0)
+                        {
+                            AtaqueDirigidoA(ene, pl);
+                        }
                     }
                 }
                 else if (decide.Equals(comandos[4]))
@@ -81,7 +95,7 @@ namespace TextAdventure
                     {
                         Program.buffer.InsertText("Solo acepta numeros");
                     }
-                    if (num >= 0 && num <= 4)
+                    else if (num >= 0 && num <= 4)
                     {
                         bool used = true;
                         if (num == 0 && pl.GetMana() - 10 >= 0)
@@ -133,13 +147,15 @@ namespace TextAdventure
             {
                 buffer.InsertText("");
                 int exp = 5 + 3 * ene.GetLevel();
-                buffer.InsertText("¡Has derrotado a " + ene.GetName());
+                buffer.InsertText("¡Has derrotado a " + ene.GetName()+"!");
+                int money = CustomMath.RandomIntNumber(5 + 5 * Program.GetLevel(),5+2*Program.GetLevel());
+                buffer.InsertText("Has conseguido " + money + " monedas");
+                pl.GainMoney(money);
                 pl.currentRoom.ene = null;
             }
-            buffer.InsertText("pulsa cualquier boton para continuar");
-            BackgroundCombat();
-            if (huir)
+            if (huir && itemHuir == -1)
             {
+                ene.RestoreHealth();
                 pl.currentRoom.SetVisible(1);
                 switch (pl.lastRoom)
                 {
@@ -158,7 +174,13 @@ namespace TextAdventure
                     default:
                         throw new Exception("Error a la hora de huir");
                 }
+            } else if (huir)
+            {
+                ene.RestoreHealth();
+                pl.ConsumeItem(itemHuir);
             }
+            buffer.InsertText("pulsa cualquier boton para continuar");
+            BackgroundCombat();
             Console.ReadKey();
         }
 

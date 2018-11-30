@@ -50,7 +50,7 @@ namespace TextAdventure.Rooms
                     {
                         Item item;
 
-                        if (CustomMath.RandomUnit() < 0.9)
+                        if (CustomMath.RandomUnit() < 0.75)
                         {
                             if (CustomMath.RandomUnit() < 0.5)
                             {
@@ -121,6 +121,7 @@ namespace TextAdventure.Rooms
                         Program.buffer.InsertText("¡Has recuperado toda la vida!");
                         Program.buffer.InsertText("¡Has recuperado todo el maná!");
                         Program.buffer.InsertText("¡Todas las maldiciones se han desvanecido!");
+                        hasEffect = false;
                     }
                 } while (hasEffect);
             }

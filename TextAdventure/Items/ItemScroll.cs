@@ -12,7 +12,13 @@ namespace TextAdventure
         readonly int id;
         public ItemScroll(string name, int id) : base(name)
         {
+
             this.id = id;
+        }
+
+        public int GetId()
+        {
+            return id;
         }
 
         public override void Consumir()
@@ -54,7 +60,8 @@ namespace TextAdventure
                             pl.currentRoom = r1[i];
                             r1[i].SetVisible(2);
                             buffer.InsertText("¡Te has teletransportado!");
-                            buffer.InsertText(r1[i].GetDescriptionTotal());
+                            if (Program.inCombat == false)
+                                buffer.InsertText(pl.currentRoom.GetDescriptionTotal());
                             i = r1.Count;
                         }
                     }

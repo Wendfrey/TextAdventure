@@ -215,15 +215,48 @@ namespace TextAdventure
                 actualRooms.Add(newRoom);
             }
 
+            List<Room> normalRooms = new List<Room>();
+            foreach (Room n in actualRooms)
+            {
+                if (n.GetType() == typeof(Room))
+                    normalRooms.Add(n);
+            }
             /*Tesoro____________*/
 
-            int limit = (Program.level > 5)? 3 : (Program.level+1)/2;
-            RoomTreasure treasure = null;
-            while(limit > 0)
+            int limit = (Program.level > 5) ? 3 : (Program.level + 1) / 2;
+            RoomGema gema = null;
+            while (limit > 0 && normalRooms.Count > 0)
             {
-                
-                num = CustomMath.RandomIntNumber(actualRooms.Count-1, 1);//num se esta reutilizando de salida
-                if(actualRooms[num].GetType() == typeof(Room))
+                num = CustomMath.RandomIntNumber(actualRooms.Count - 1, 1);//num se esta reutilizando de salida
+                if (normalRooms.Contains(actualRooms[num]))
+                {
+                    Room r = actualRooms[num];
+                    gema = new RoomGema(r.GetPosX(), r.GetPosY());
+                    gema.SetEast(r.GetEastRoom());
+                    gema.SetWest(r.GetWestRoom());
+                    gema.SetNorth(r.GetNorthRoom());
+                    gema.SetSouth(r.GetSouthRoom());
+                    if (gema.GetNorthRoom() != null)
+                        gema.GetNorthRoom().SetSouth(gema);
+                    if (gema.GetSouthRoom() != null)
+                        gema.GetSouthRoom().SetNorth(gema);
+                    if (gema.GetWestRoom() != null)
+                        gema.GetWestRoom().SetEast(gema);
+                    if (gema.GetEastRoom() != null)
+                        gema.GetEastRoom().SetWest(gema);
+                    actualRooms.Remove(r);
+                    normalRooms.Remove(r);//Eliminalo de las posibles posiciones
+                    actualRooms.Add(gema);
+                    limit--;
+                }
+            }
+
+            limit = (Program.level > 9) ? 3 : (Program.level)/ 3;
+            RoomTreasure treasure = null;
+            while (limit > 0 && normalRooms.Count > 0)
+            {
+                num = CustomMath.RandomIntNumber(actualRooms.Count - 1, 1);//num se esta reutilizando de salida
+                if (normalRooms.Contains(actualRooms[num]))
                 {
                     Room r = actualRooms[num];
                     treasure = new RoomTreasure(r.GetPosX(), r.GetPosY());
@@ -240,11 +273,13 @@ namespace TextAdventure
                     if (treasure.GetEastRoom() != null)
                         treasure.GetEastRoom().SetWest(treasure);
                     actualRooms.Remove(r);
+                    normalRooms.Remove(r);//Eliminalo de las posibles posiciones
                     actualRooms.Add(treasure);
                     limit--;
                 }
             }
-            if(CustomMath.RandomUnit() < 0.5)
+
+            if (CustomMath.RandomUnit() < 0.5)
             {
                 RoomBless bless;
                 Room r;
@@ -267,22 +302,30 @@ namespace TextAdventure
                 if (bless.GetEastRoom() != null)
                     bless.GetEastRoom().SetWest(bless);
                 actualRooms.Remove(r);
+                normalRooms.Remove(r);
                 actualRooms.Add(bless);
             }
-            /*Miscelaneous*/
 
+            /*Miscelaneous*/
             if (existsClosedRoom)
             {
                 bool control = true;
                 do
                 {
-                    num = CustomMath.RandomIntNumber(actualRooms.Count - 1, 1);
-                    if (actualRooms[num].GetType() == typeof(Room))
+                    num = CustomMath.RandomIntNumber(normalRooms.Count - 1,1);
+                    if (actualRooms[num].GetType() != typeof(RoomClosed))
                     {
-                        actualRooms[num].GetItem(new Item("Llave vieja"));
-                        control = false;
+                        control = !actualRooms[num].GetItem(new Item("Llave vieja"));
                     }
                 } while (control);
+            }
+
+            int maxEnemies = (int)(Program.level + 0.16* Program.level * Program.level);
+            for(int i = 0; i<maxEnemies; i++)
+            {
+                int x = CustomMath.RandomIntNumber(normalRooms.Count - 1,1);
+                normalRooms[x].ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length - 1)], Program.level);
+                normalRooms.RemoveAt(x);
             }
         }
 

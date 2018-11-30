@@ -19,14 +19,16 @@ namespace TextAdventure
         ItemArmor armadura = null;
         Maldicion[] mal = { null, null, null };
         int excesoMaldito = 0;
+        int money;
+
         protected override float hitPerc
         {
             get
             {
                 if (arma == null)
-                    return 0;
+                    return (GetAtt() / 5) * 0.01f;
                 else
-                    return arma.GetHitPercFloat();
+                    return arma.GetHitPercFloat()+(GetAtt()/5)*0.01f;
             }
         }
 
@@ -59,16 +61,36 @@ namespace TextAdventure
         {
             for (int i = 0; i < 5; i++)
                 bag[i] = new ItemPocion("Poción de vida", 50, ItemPocion.PocionType.hp);
-
-            armadura = new ItemArmor("Armadura Simple", 10,3,45);
+            armadura = new ItemArmor("Armadura Simple", 5,3,45);
 
             hpM = 24;
             hp = GetMHealth();
-            att = 5;
+            att = 7;
             def = 5;
             speed = 5;
             mana = 10;
             manaM = 10;
+            money = 0;
+        }
+
+        public void GainMoney(int gain)
+        {
+            money += gain;
+        }
+
+        public void SpendMoney(int spent)
+        {
+            money -= spent;
+        }
+
+        public bool EnoughMoney(int cost)
+        {
+            return !(cost > money);
+        }
+
+        public int CurrentMoney()
+        {
+            return money;
         }
 
         public void SetCurrentRoom(Room room)
@@ -627,33 +649,38 @@ namespace TextAdventure
         public bool ConsumeItem(int num)
         {
             bool control = false;
-            if (bag[num].GetType() == typeof(ItemPocion))
+            if (bag[num].GetType().BaseType == typeof(ItemConsumable))
             {
-                ItemPocion item = (ItemPocion)bag[num];
-                item.Consumir();
-                if (item.GetPocionType() == ItemPocion.PocionType.hp)
+                if (bag[num].GetType() == typeof(ItemPocion))
                 {
-                    if (hp < GetMHealth())
-                        Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y has recuperado " + item.GetRecoveryStat() + " de vida");
+                    ItemPocion item = (ItemPocion)bag[num];
+                    item.Consumir();
+                    if (item.GetPocionType() == ItemPocion.PocionType.hp)
+                    {
+                        if (hp < GetMHealth())
+                            Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y has recuperado " + item.GetRecoveryStat() + " de vida");
+                        else
+                            Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y te has recuperado el máximo de vida");
+                    }
                     else
-                        Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y te has recuperado el máximo de vida");
+                    {
+                        if (mana < manaM)
+                            Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y has recuperado " + item.GetRecoveryStat() + " de maná");
+                        else
+                            Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y te has recuperado el máximo de maná");
+                    }
+                    bag[num] = null;
+                    control = true;
                 }
-                else
+                else if (bag[num].GetType() == typeof(ItemScroll))
                 {
-                    if (mana < manaM)
-                        Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y has recuperado " + item.GetRecoveryStat() + " de maná");
-                    else
-                        Program.buffer.InsertText("Has tomado " + bag[num].GetName() + " y te has recuperado el máximo de maná");
+                    ItemScroll item = (ItemScroll)bag[num];
+                    item.Consumir();
+                    bag[num] = null;
+                    control = true;
                 }
-                bag[num] = null;
-                control = true;
-            }
-            else if (bag[num].GetType() == typeof(ItemScroll))
-            {
-                ItemScroll item = (ItemScroll)bag[num];
-                item.Consumir();
-                bag[num] = null;
-                control = true;
+                if (!control)
+                    throw new NotImplementedException("Error con el objeto de tipo " + bag[num].GetType().Name);
             }
             else
             {

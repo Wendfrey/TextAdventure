@@ -70,6 +70,7 @@
     <Compile Include="Rooms\Room.cs" />
     <Compile Include="Rooms\RoomExit.cs" />
     <Compile Include="Rooms\RoomTreasure.cs" />
+    <Compile Include="Rooms\RoomGema.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

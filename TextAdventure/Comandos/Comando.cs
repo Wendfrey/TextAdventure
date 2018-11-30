@@ -377,9 +377,9 @@ namespace TextAdventure.Comandos
                 }
                 if(bag[i] != null)
                 {
-                    if (bag[i].GetType().BaseType == typeof(ItemEquipable))
+                    if (bag[i].GetType() == typeof(ItemArmor))
                     {
-                        ItemEquipable equipo = (ItemEquipable)bag[i];
+                        ItemArmor equipo = (ItemArmor)bag[i];
                         Program.buffer.Print(1 + 50*x, 2 + ii * 3, equipo.GetName());
                         string texto = "";
                         if (equipo.ModifierHp() < 0)
@@ -387,15 +387,59 @@ namespace TextAdventure.Comandos
                         else
                             texto += "HP(+" + equipo.ModifierHp() + ") ";
 
+                        if (equipo.ModifierDef() < 0)
+                            texto += "DEF(" + equipo.ModifierDef() + ") ";
+                        else
+                            texto += "DEF(+" + equipo.ModifierDef() + ") ";
+
+                        if(equipo.GetAvoidPercInt() < 0)
+                            texto += "DEF PROB.(" + equipo.GetAvoidPercInt() + ")";
+                        else
+                            texto += "DEF PROB.(+" + equipo.GetAvoidPercInt() + ")";
+
+                        Program.buffer.Print(5 + 50 * x, 3 + ii * 3, texto);
+                    }
+                    else if (bag[i].GetType() == typeof(ItemWeapon))
+                    {
+                        ItemWeapon equipo = (ItemWeapon)bag[i];
+                        Program.buffer.Print(1 + 50 * x, 2 + ii * 3, equipo.GetName());
+                        string texto = "";
                         if (equipo.ModifierAtt() < 0)
                             texto += "ATT(" + equipo.ModifierAtt() + ") ";
                         else
                             texto += "ATT(+" + equipo.ModifierAtt() + ") ";
 
-                        if (equipo.ModifierDef() < 0)
-                            texto += "DEF(" + equipo.ModifierDef() + ") ";
+                        if (equipo.ModifierAttM() < 0)
+                            texto += "ATT M.(" + equipo.ModifierAttM() + ") ";
                         else
-                            texto += "DEF(+" + equipo.ModifierDef() + ") ";
+                            texto += "ATT M.(+" + equipo.ModifierAttM() + ") ";
+
+                        if (equipo.GetHitPercInt() < 0)
+                            texto += "ATT PROB.(" + equipo.GetHitPercInt() + ")";
+                        else
+                            texto += "ATT PROB.(+" + equipo.GetHitPercInt() + ")";
+
+                        Program.buffer.Print(5 + 50 * x, 3 + ii * 3, texto);
+                    }
+                    else if (bag[i].GetType() == typeof(ItemGema))
+                    {
+                        ItemGema equipo = (ItemGema)bag[i];
+                        Program.buffer.Print(1 + 50 * x, 2 + ii * 3, equipo.GetName());
+                        string texto = "";
+                        if (equipo.ModifierHp() < 0)
+                            texto += "HP(" + equipo.ModifierHp() + ") ";
+                        else
+                            texto += "HP(+" + equipo.ModifierHp() + ") ";
+
+                        if (equipo.ModifierAttM() < 0)
+                            texto += "ATT M.(" + equipo.ModifierAttM() + ") ";
+                        else
+                            texto += "ATT M.(+" + equipo.ModifierAttM() + ") ";
+
+                        if (equipo.ModifierManaM() < 0)
+                            texto += "MANA M.(" + equipo.ModifierManaM() + ")";
+                        else
+                            texto += "MANA M.(+" + equipo.ModifierManaM() + ")";
 
                         Program.buffer.Print(5 + 50 * x, 3 + ii * 3, texto);
                     }
@@ -592,9 +636,9 @@ namespace TextAdventure.Comandos
             if (weapon != null)
             {
                 Program.buffer.Print(7, 5, weapon.GetName());
-                Program.buffer.Print(7, 6, "HP-> " + weapon.ModifierHp());
-                Program.buffer.Print(7, 7, "ATT-> " + weapon.ModifierAtt());
-                Program.buffer.Print(7, 8, "DEF-> " + weapon.ModifierDef());
+                Program.buffer.Print(7, 6, "ATT-> " + weapon.ModifierAtt());
+                Program.buffer.Print(7, 7, "ATT M.-> " + weapon.ModifierAttM());
+                Program.buffer.Print(7, 8, "ATT PROB.-> " + weapon.GetHitPercInt());
             }
             else
             {
@@ -608,8 +652,8 @@ namespace TextAdventure.Comandos
             {
                 Program.buffer.Print(7, 13, armor.GetName());
                 Program.buffer.Print(7, 14, "HP-> " + armor.ModifierHp());
-                Program.buffer.Print(7, 15, "ATT-> " + armor.ModifierAtt());
-                Program.buffer.Print(7, 16, "DEF-> " + armor.ModifierDef());
+                Program.buffer.Print(7, 15, "DEF-> " + armor.ModifierDef());
+                Program.buffer.Print(7, 16, "DEF PROB.-> " + armor.GetAvoidPercInt());
             }
             else
             {
@@ -817,6 +861,39 @@ namespace TextAdventure.Comandos
             }
             Program.buffer.InsertText("No ha pasado nada");
             return false;
+        }
+
+        public static int ConsumeItemCombat()
+        {
+            Item[] bag = Program.pl.GetBag();
+            Program.buffer.InsertText("Que objeto quieres consumir?");
+            Program.pl.ListOfItems();
+            Program.buffer.PrintBackground();
+            Program.buffer.PrintText(Program.buffer.height - 3);
+            Program.buffer.Print(1, 0, "PRINCIPAL");
+            Program.buffer.Print(1, Program.buffer.height - 2, ">");
+            Program.SmallMap();
+            Program.buffer.PrintScreen();
+            Console.SetCursorPosition(2, Program.buffer.height - 2);
+            int num;
+            bool obj = int.TryParse(Console.ReadLine(), out num);
+            if (obj && num >= 0 && num < bag.Length && bag[num] != null && bag[num].GetType().BaseType == typeof(ItemConsumable))
+            {
+                return num;
+            }
+            else if (!obj)
+            {
+                Program.buffer.InsertText("Tiene que ser un numero");
+            }
+            else if(bag[num] == null)
+            {
+                Program.buffer.InsertText("Esa posicion no es válida");
+            }
+            else
+            {
+                Program.buffer.InsertText(bag[num].GetName() + " no se puede consumir");
+            }
+            return -1;
         }
     }
 }

@@ -23,11 +23,7 @@ namespace TextAdventure.Rooms
             descr = FileReader.RandomDescr("Text/roomDescr.txt");
             if (!(x == 0 && y == 0))
             {
-                double prob = (level < 4) ? 0.1 + 0.3 * level / 4d : 0.4;
-                if (CustomMath.RandomUnit() < prob)
-                    ene = new Enemigo(Enemigo.eneList[CustomMath.RandomIntNumber(Enemigo.eneList.Length - 1)], level);
-
-                if (CustomMath.RandomUnit() < 0.02)
+                if (CustomMath.RandomUnit() < 0.0375)
                 {
                     if (CustomMath.RandomUnit() < 0.5)
                     {
@@ -110,7 +106,7 @@ namespace TextAdventure.Rooms
             return ret;
         }
 
-        public bool GetItem(Item item)
+        virtual public bool GetItem(Item item)
         {
             if (!HasItemSpace())
                 return false;

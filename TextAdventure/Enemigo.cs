@@ -8,7 +8,7 @@ namespace TextAdventure
 {
     class Enemigo : CombatClass
     {
-        public static DatoEnemigo[] eneList = { new DatoEnemigo("Esqueleto", 115, 175, 0, 100, 0, 0, 0.45f, 0.3f), new DatoEnemigo("Goblin", 175, 150, 200, 150, 0, 0, 0.5f, 0.1f), new DatoEnemigo("Zombie", 300, 120, 200, 150 ,0, 0, 0.3f, 0.1f), new DatoEnemigo("Slime",512 , 85, 255,100 ,0 ,0 , 0, 0.1f)};
+        public static DatoEnemigo[] eneList = { new DatoEnemigo("Esqueleto", 115, 200, 0, 100, 0, 0, 0.45f, 0.3f), new DatoEnemigo("Goblin", 125, 150, 200, 150, 0, 0, 0.5f, 0.1f), new DatoEnemigo("Zombie", 300, 120, 200, 150 ,0, 0, 0.3f, 0.1f), new DatoEnemigo("Slime",512 , 85, 255,100 ,0 ,0 , 0, 0.1f)};
         string nombre;
         readonly int level;
         public Enemigo(DatoEnemigo datoEnemigo, int level)
@@ -17,7 +17,7 @@ namespace TextAdventure
             nombre = datoEnemigo.nombre;
             hpM = (int)((datoEnemigo.hpM * level / 100 + 10));
             hp = hpM;
-            att = (int)((5 + datoEnemigo.att * level / 100) * (1 - CustomMath.RandomUnit() * 0.1f));
+            att = (int)((6 + datoEnemigo.att * level / 100) * (1 - CustomMath.RandomUnit() * 0.1f));
             def = (int)((5 + datoEnemigo.def * level / 100) * (1 - CustomMath.RandomUnit() * 0.1f));
             speed = (int)((5 + datoEnemigo.speed * level / 100) * (1 - CustomMath.RandomUnit() * 0.1f));
             manaM = (int)((5 + datoEnemigo.manaM * level / 100) * (1 - CustomMath.RandomUnit() * 0.1f));
@@ -38,6 +38,11 @@ namespace TextAdventure
         public int GetLevel()
         {
             return level;
+        }
+
+        public void RestoreHealth()
+        {
+            hp = hpM;
         }
 
         public class DatoEnemigo

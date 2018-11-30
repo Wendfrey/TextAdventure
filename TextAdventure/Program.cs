@@ -14,6 +14,7 @@ namespace TextAdventure
         static public List<Room> lvlLayout = null;
         static public bool goNextLevel = false;
         static public int level;
+        public static bool inCombat;
 
         static void Main(string[] args)
         {
@@ -24,13 +25,12 @@ namespace TextAdventure
             {
                 pl = new Player();
                 level = 1;
+                inCombat = false;
                 buffer.ClearBox();
-                int cRooms = 10 + 5 * level;
-                Level.StartLevel(cRooms);
-                lvlLayout = Level.GetListOfRooms();
-
-                pl.currentRoom = lvlLayout[0];
                 Introduccion();
+                Level.StartLevel(GetRoomsPerLevel());
+                lvlLayout = Level.GetListOfRooms();
+                pl.currentRoom = lvlLayout[0];
                 MainScreen();
                 if (pl.IsDead())
                     buffer.Print(43, 10, "--HAS MUERTO--");
@@ -77,7 +77,7 @@ namespace TextAdventure
                             {
                                 if (pl.currentRoom.GetPosX() == lvlLayout[i].GetPosX() && pl.currentRoom.GetPosY() == lvlLayout[i].GetPosY())
                                     buffer.Print(xx, yy, "O");
-                                else if (lvlLayout[i].GetType() == typeof(RoomTreasure))
+                                else if (lvlLayout[i].GetType() == typeof(RoomGema))
                                     buffer.Print(xx, yy, "Z");
                                 else if (lvlLayout[i].GetType() == typeof(RoomExit))
                                     buffer.Print(xx, yy, "S");
@@ -189,7 +189,7 @@ namespace TextAdventure
                         {
                             if (pl.currentRoom.GetPosX() == lvlLayout[i].GetPosX() && pl.currentRoom.GetPosY() == lvlLayout[i].GetPosY())
                                 buffer.Print(xx, yy, "O");
-                            else if (lvlLayout[i].GetType() == typeof(RoomTreasure))
+                            else if (lvlLayout[i].GetType() == typeof(RoomGema))
                                 buffer.Print(xx, yy, "Z");
                             else if (lvlLayout[i].GetType() == typeof(RoomExit))
                                 buffer.Print(xx, yy, "S");
@@ -321,14 +321,15 @@ namespace TextAdventure
                                 Console.ReadKey();
                                 ConsoleBuffer cbMain = buffer;
                                 buffer = new ConsoleBuffer(width, height, height - 5);
+                                inCombat = true;
                                 EscenaCombate.Combate(pl.currentRoom.ene);
+                                inCombat = false;
                                 buffer = cbMain;
                                 if (pl.IsDead())
                                 {
                                     textInput = "exit";
                                 }
                             }
-
                             buffer.InsertText(pl.currentRoom.GetDescriptionTotal());
                         }
                     }
@@ -347,8 +348,7 @@ namespace TextAdventure
                     level++;
                     goNextLevel = false;
                     // hola
-                    int cRooms = 10 + 5 * level;
-                    Level.StartLevel(cRooms);
+                    Level.StartLevel(GetRoomsPerLevel());
                     lvlLayout = Level.actualRooms;
                     pl.currentRoom = lvlLayout[0];
                     buffer.ClearBox();
@@ -396,6 +396,11 @@ namespace TextAdventure
         public static int GetLevel()
         {
             return level;
+        }
+
+        public static int GetRoomsPerLevel()
+        {
+            return 10 + 6 * level;
         }
     }
 }
