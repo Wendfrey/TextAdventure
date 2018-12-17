@@ -77,8 +77,9 @@ namespace TextAdventure
                                 huir = true;
                             }
                         }
-                        if (itemHuir == 0)
+                        if (itemHuir == -1)
                         {
+                            pl.ConsumeItem(i);
                             AtaqueDirigidoA(ene, pl);
                         }
                     }
